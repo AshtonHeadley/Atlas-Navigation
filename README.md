@@ -2,4 +2,5 @@
 
 This is a new and innovative navigation app. Please try us out!
 
-<img src='https://stock.adobe.com/search?k=hiking+woman&asset_id=225104208](https://as1.ftcdn.net/v2/jpg/02/25/10/42/1000_F_225104208_3MQPIzkBEqJUkzAu2LqBu0HS04RbaSYU.jpg)https://as1.ftcdn.net/v2/jpg/02/25/10/42/1000_F_225104208_3MQPIzkBEqJUkzAu2LqBu0HS04RbaSYU.jpg'/>
+![image](https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp/assets/93296008/00dd4b3d-8932-4532-90d3-60f9a1625607)
+
