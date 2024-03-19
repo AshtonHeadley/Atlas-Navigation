@@ -76,7 +76,7 @@ function App(): React.JSX.Element {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
+          <Section title="Step one">
           Testing testing
           </Section>
           <Section title="See Your Changes">
