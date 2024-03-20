@@ -1,26 +1,25 @@
-import React, { useState } from 'react';
-import {Text, View, StyleSheet, Dimensions, TextInput, TouchableOpacity, Image, Button} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {LoginScreen} from '../Atlas/Login_Screen.tsx'
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Dimensions } from "react-native"
 
-const Stack = createNativeStackNavigator();
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-const FirstPageApp = () => {
-  const [email, setEmail] = useState('');
-  const[password, setPassword] = useState('');
-  const checkInput = () => {
-  if(email == 'ADMIN' && password == 'ADMINPASS'){
-    console.log("Logged in!")
-    //navigation.navigate('Profile', {name: 'Jane'})
-  }
-  else{
-    console.log("Failed to Log in!")
-  }
-  return (
-    <View style={styles.container}>
+
+export const LoginScreen = ({}) => {
+    const [email, setEmail] = useState('');
+    const[password, setPassword] = useState('');
+    const checkInput = () => {
+    if(email == 'ADMIN' && password == 'ADMINPASS'){
+        console.log("Logged in!")
+        //navigation.navigate('Profile', {name: 'Jane'})
+    }
+    else{
+      console.log("Failed to Log in!")
+    }
+    };
+        return (
+            <View style={styles.container}>
           <Text style={styles.title}>ATLAS</Text>
           <TextInput
             style={styles.input}
@@ -52,38 +51,11 @@ const FirstPageApp = () => {
           <TouchableOpacity>
             <Text style={styles.createAccount}>Create an Account</Text>
           </TouchableOpacity>
-      </View>
-    /*
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-         //options={{title: 'Welcome'}}
-        />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>*/
-  );}
-};
+        </View>
+        )
+}
 
-const HomeScreen = ({}) => {
-  return (
-    <Button
-      title="Go to Jane's profile"
-      onPress={() =>
-        //navigate('Profile', {name: 'Jane'})
-        console.log("do nothing")
-      }
-    />
-  );
-};
-const ProfileScreen = ({}) => {
-  return <Text>This is 's profile</Text>; //{route.params.name}
-};
-
-const colorTheme = '#2596bd';
-
+const colorTheme = '#2596bd'
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -139,5 +111,3 @@ const styles = StyleSheet.create({
     color: colorTheme,
   },
 });
-
-export default FirstPageApp;
