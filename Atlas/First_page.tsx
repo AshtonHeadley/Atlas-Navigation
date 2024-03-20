@@ -1,88 +1,59 @@
 import React, { useState } from 'react';
-import {Text, View, StyleSheet, Dimensions, TextInput, TouchableOpacity, Image, Button} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {LoginScreen} from '../Atlas/Login_Screen.tsx'
+import {Text, View, StyleSheet, Dimensions, TextInput, TouchableOpacity, Image} from 'react-native';
 
-const Stack = createNativeStackNavigator();
+
+
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
-
 const FirstPageApp = () => {
   const [email, setEmail] = useState('');
   const[password, setPassword] = useState('');
   const checkInput = () => {
-  if(email == 'ADMIN' && password == 'ADMINPASS'){
-    console.log("Logged in!")
-    //navigation.navigate('Profile', {name: 'Jane'})
-  }
-  else{
-    console.log("Failed to Log in!")
-  }
+    if(email == 'ADMIN' && password == 'ADMINPASS'){
+        console.log("Logged in!")
+    }
+    else{
+      console.log("Log in!")
+    }
+  };
   return (
     <View style={styles.container}>
-          <Text style={styles.title}>ATLAS</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999"
-            keyboardType="email-address"
-            onChangeText={newText => setEmail(newText)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#999"
-            secureTextEntry
-            onChangeText={newText => setPassword(newText)}
-          />
-          <TouchableOpacity>      
-            <Text style={styles.forgotPassword}>Forget password?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={checkInput}
-                            style={styles.loginButton}>
-            <Text style={styles.loginButtonText}>LOGIN</Text>
-          </TouchableOpacity>
-          <View style={styles.socialLoginContainer}>
-            <TouchableOpacity style={styles.socialLoginButton}>
-              <Image source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png'}}
-                    style={{width: screenHeight/20, height: screenHeight/20}} />
-            </TouchableOpacity>
-          </View>
-          <TouchableOpacity>
-            <Text style={styles.createAccount}>Create an Account</Text>
-          </TouchableOpacity>
+      <Text style={styles.title}>ATLAS</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#999"
+        keyboardType="email-address"
+        onChangeText={newText => setEmail(newText)}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        placeholderTextColor="#999"
+        secureTextEntry
+        onChangeText={newText => setPassword(newText)}
+      />
+      <TouchableOpacity>      
+        <Text style={styles.forgotPassword}>Forget password?</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={checkInput}
+                        style={styles.loginButton}>
+        <Text style={styles.loginButtonText}>LOGIN</Text>
+      </TouchableOpacity>
+      <View style={styles.socialLoginContainer}>
+        <TouchableOpacity style={styles.socialLoginButton}>
+          <Image source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png'}}
+                 style={{width: screenHeight/20, height: screenHeight/20}} />
+        </TouchableOpacity>
       </View>
-    /*
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-         //options={{title: 'Welcome'}}
-        />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>*/
-  );}
-};
-
-const HomeScreen = ({}) => {
-  return (
-    <Button
-      title="Go to Jane's profile"
-      onPress={() =>
-        //navigate('Profile', {name: 'Jane'})
-        console.log("do nothing")
-      }
-    />
+      <TouchableOpacity>
+        <Text style={styles.createAccount}>Create an Account</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
-const ProfileScreen = ({}) => {
-  return <Text>This is 's profile</Text>; //{route.params.name}
-};
 
-const colorTheme = '#2596bd';
+const colorTheme = '#2596bd'
 
 const styles = StyleSheet.create({
   container: {
