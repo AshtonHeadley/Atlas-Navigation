@@ -17,7 +17,6 @@ import {
 } from '@firebase/auth'
 import {FIREBASE_AUTH} from '../FirebaseConfig'
 
-const screenWidth = Dimensions.get('window').width
 const screenHeight = Dimensions.get('window').height
 
 const LoginScreen = ({navigation}) => {
@@ -40,7 +39,7 @@ const LoginScreen = ({navigation}) => {
           console.log('User signed in and verified!')
           setEmail('')
           setPassword('')
-          navigation.navigate('HomePage')
+          navigation.navigate('MapScreen')
         } else {
           Alert.alert('Email not verified')
         }
