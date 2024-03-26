@@ -10,6 +10,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+} from '@firebase/auth'
+import {FIREBASE_AUTH} from '../FirebaseConfig'
 
 const screenWidth = Dimensions.get('window').width
 const screenHeight = Dimensions.get('window').height
@@ -18,26 +24,27 @@ const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const auth = FIREBASE_AUTH
 
   const signIn = async () => {
     setLoading(true)
     try {
       console.log('pressed')
-      //   const signedInUser = await signInWithEmailAndPassword(
-      //     auth,
-      //     email,
-      //     password,
-      //   )
-      //   if (auth.currentUser) {
-      //     if (auth.currentUser.emailVerified) {
-      //       console.log('User signed in and verified!')
-      //       setEmail('')
-      //       setPassword('')
-      //       navigation.navigate('HomePage')
-      //     } else {
-      //       Alert.alert('Email not verified')
-      //     }
-      //   }
+      const signedInUser = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      )
+      if (auth.currentUser) {
+        if (auth.currentUser.emailVerified) {
+          console.log('User signed in and verified!')
+          setEmail('')
+          setPassword('')
+          navigation.navigate('HomePage')
+        } else {
+          Alert.alert('Email not verified')
+        }
+      }
     } catch (error) {
       Alert.alert('Incorrect email or password')
       console.log(error)

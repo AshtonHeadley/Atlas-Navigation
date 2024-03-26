@@ -1,9 +1,29 @@
+import {onAuthStateChanged, signOut} from '@firebase/auth'
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {FIREBASE_APP, FIREBASE_AUTH} from '../FirebaseConfig'
+import {collection, doc, getDoc, getFirestore} from '@firebase/firestore'
 import {useState} from 'react'
-import {View, Text, TouchableOpacity, Alert, StyleSheet} from 'react-native'
 
 const HomePage = ({navigation}) => {
+  const auth = FIREBASE_AUTH
+  const db = getFirestore(FIREBASE_APP)
+  const docId = auth.currentUser?.uid
+  const userDocRef = doc(collection(db, 'users'), docId)
   const [name, setName] = useState('')
+
+  const getUserName = async () => {
+    try {
+      let output = (await getDoc(userDocRef)).get('name')
+      setName(output)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  getUserName()
+
   let text = `Welcome ${name ? name : ''}`
+
   return (
     <View style={styles.center}>
       <Text>Home Page</Text>
@@ -11,7 +31,7 @@ const HomePage = ({navigation}) => {
       <TouchableOpacity
         onPress={async () => {
           try {
-            // await signOut(auth)
+            await signOut(auth)
             console.log('signed out successfully')
             navigation.goBack()
           } catch (error) {

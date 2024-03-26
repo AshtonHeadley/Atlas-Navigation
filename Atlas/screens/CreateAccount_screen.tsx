@@ -115,21 +115,21 @@ const CreateAccount = ({navigation}) => {
           style={styles.input}
           placeholder='Full Name'
           placeholderTextColor={colorTheme}
-          //   onChangeText={newText => setName(newText)}
+          onChangeText={newText => setName(newText)}
         />
         <TextInput
           style={styles.input}
           placeholder='Email'
           placeholderTextColor={colorTheme}
           keyboardType='email-address'
-          //   onChangeText={newText => setEmail(newText)}
+          onChangeText={newText => setEmail(newText)}
         />
         <TextInput
           style={styles.input}
           placeholder='Password'
           placeholderTextColor={colorTheme}
           secureTextEntry
-          //   onChangeText={newText => setPassword(newText)}
+          onChangeText={newText => setPassword(newText)}
           textContentType={'oneTimeCode'}
         />
         <TextInput
@@ -137,7 +137,7 @@ const CreateAccount = ({navigation}) => {
           placeholder='Confirm Password'
           placeholderTextColor={colorTheme}
           secureTextEntry
-          //   onChangeText={newText => setConfirmPassword(newText)}
+          onChangeText={newText => setConfirmPassword(newText)}
           textContentType={'oneTimeCode'}
         />
       </View>
