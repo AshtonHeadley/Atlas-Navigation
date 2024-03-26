@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Image,
   StyleSheet,
@@ -14,7 +15,37 @@ const screenWidth = Dimensions.get('window').width
 const screenHeight = Dimensions.get('window').height
 
 const LoginScreen = ({navigation}) => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const signIn = async () => {
+    setLoading(true)
+    try {
+      console.log('pressed')
+      //   const signedInUser = await signInWithEmailAndPassword(
+      //     auth,
+      //     email,
+      //     password,
+      //   )
+      //   if (auth.currentUser) {
+      //     if (auth.currentUser.emailVerified) {
+      //       console.log('User signed in and verified!')
+      //       setEmail('')
+      //       setPassword('')
+      //       navigation.navigate('HomePage')
+      //     } else {
+      //       Alert.alert('Email not verified')
+      //     }
+      //   }
+    } catch (error) {
+      Alert.alert('Incorrect email or password')
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ATLAS</Text>
@@ -23,16 +54,16 @@ const LoginScreen = ({navigation}) => {
         placeholder='Email'
         placeholderTextColor='#999'
         keyboardType='email-address'
-        //onChangeText={newText => setEmail(newText)}
-        //value={email}
+        onChangeText={newText => setEmail(newText)}
+        value={email}
       />
       <TextInput
         style={styles.input}
         placeholder='Password'
         placeholderTextColor='#999'
         secureTextEntry
-        //onChangeText={newText => setPassword(newText)}
-        //value={password}
+        onChangeText={newText => setPassword(newText)}
+        value={password}
       />
       <TouchableOpacity>
         <Text style={styles.forgotPassword}>Forget password?</Text>
@@ -41,7 +72,7 @@ const LoginScreen = ({navigation}) => {
         <ActivityIndicator size={'large'} color='#0000ff' />
       ) : (
         <>
-          <TouchableOpacity style={styles.loginButton}>
+          <TouchableOpacity onPress={signIn} style={styles.loginButton}>
             <Text style={styles.loginButtonText}>LOGIN</Text>
           </TouchableOpacity>
         </>

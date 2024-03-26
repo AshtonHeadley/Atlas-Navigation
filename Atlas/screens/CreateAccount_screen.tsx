@@ -9,13 +9,85 @@ import {
   ActivityIndicator,
   Dimensions,
   StyleSheet,
+  Alert,
 } from 'react-native'
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from '@firebase/auth'
+import {
+  FIREBASE_APP,
+  FIREBASE_AUTH,
+  FIREBASE_DATABASE,
+  FIREBASE_FIRESTORE,
+} from '../FirebaseConfig'
+import {
+  collection,
+  getFirestore,
+  addDoc,
+  setDoc,
+  doc,
+} from '@firebase/firestore'
 
 const screenWidth = Dimensions.get('window').width
 const screenHeight = Dimensions.get('window').height
 
 const CreateAccount = ({navigation}) => {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const auth = FIREBASE_AUTH
+  const db = getFirestore(FIREBASE_APP)
+
+  const addUserData = async (
+    uid: string,
+    userName: string,
+    userEmail: string,
+  ) => {
+    try {
+      console.log('Before Firestore operation')
+      const data = {
+        name: userName,
+        email: userEmail,
+      }
+      const userDocRef = doc(collection(db, 'users'), uid)
+      await setDoc(userDocRef, data)
+      console.log(`${uid} data added successfully`)
+    } catch (error) {
+      console.error('Error adding data:', error)
+    }
+  }
+
+  const signUp = async () => {
+    if (!email.includes('@')) {
+      Alert.alert('Invalid Email')
+      return
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Passwords do not match')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const {user} = await createUserWithEmailAndPassword(auth, email, password)
+      await sendEmailVerification(user)
+      Alert.alert('Check your email')
+      await addUserData(user.uid, name, email)
+      navigation.goBack()
+    } catch (error) {
+      console.log(email)
+      Alert.alert(
+        'Something went wrong. Double check that you entered a valid email address.',
+      )
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <ScrollView scrollEnabled={false}>
       <View style={styles.TitleView}>
@@ -84,7 +156,9 @@ const CreateAccount = ({navigation}) => {
           <ActivityIndicator size={'large'} color='#0000ff' />
         ) : (
           <>
-            <TouchableOpacity style={styles.createAccountButton}>
+            <TouchableOpacity
+              onPress={signUp}
+              style={styles.createAccountButton}>
               <Text style={{color: '#fff', fontWeight: 'bold'}}>Continue</Text>
             </TouchableOpacity>
           </>
