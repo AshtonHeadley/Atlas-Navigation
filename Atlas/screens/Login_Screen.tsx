@@ -17,6 +17,7 @@ import {
 } from '@firebase/auth'
 import {FIREBASE_AUTH} from '../FirebaseConfig'
 
+export let GLOBAL_EMAIL = ''
 const screenHeight = Dimensions.get('window').height
 
 const LoginScreen = ({navigation}) => {
@@ -37,6 +38,7 @@ const LoginScreen = ({navigation}) => {
       if (auth.currentUser) {
         if (auth.currentUser.emailVerified) {
           console.log('User signed in and verified!')
+          GLOBAL_EMAIL = email
           setEmail('')
           setPassword('')
           navigation.navigate('HomeScreen')

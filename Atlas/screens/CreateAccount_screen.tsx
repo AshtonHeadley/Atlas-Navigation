@@ -22,14 +22,16 @@ import {
   FIREBASE_FIRESTORE,
 } from '../FirebaseConfig'
 import {
+  query,
   collection,
   getFirestore,
   addDoc,
   setDoc,
   doc,
+  getDocs,
+  where,
 } from '@firebase/firestore'
 
-const screenWidth = Dimensions.get('window').width
 const screenHeight = Dimensions.get('window').height
 
 const CreateAccount = ({navigation}) => {
@@ -50,11 +52,11 @@ const CreateAccount = ({navigation}) => {
       console.log('Before Firestore operation')
       const data = {
         name: userName,
-        email: userEmail,
+        email: userEmail.toLowerCase(),
       }
-      const userDocRef = doc(collection(db, 'users'), uid)
-      await setDoc(userDocRef, data)
-      console.log(`${uid} data added successfully`)
+      const userDocRef = doc(collection(db, 'users'), userEmail.toLowerCase()) //reference to document in firebase
+      await setDoc(userDocRef, data) //adding data to document path
+      console.log(`${userName.toLowerCase()} data added successfully`)
     } catch (error) {
       console.error('Error adding data:', error)
     }
