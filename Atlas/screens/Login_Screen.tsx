@@ -25,6 +25,10 @@ const LoginScreen = ({navigation}) => {
 
   // Function to handle user sign-in
   const signIn = async () => {
+    //TEMPORARY BLOCK, REMOVE LATER
+
+    //TEMPORARY BLOCK, REMOVE LATER
+
     setLoading(true)
     try {
       console.log('pressed')

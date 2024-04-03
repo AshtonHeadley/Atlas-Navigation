@@ -1,19 +1,13 @@
 import {StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native'
 import {colorTheme, screenHeight} from '../Home_Page'
-import {
-  ReactElement,
-  JSXElementConstructor,
-  ReactNode,
-  ReactPortal,
-} from 'react'
 
 const PinCard = ({text}) => {
-  const {inputText} = text
-  console.log(text)
+  const {inputText, onPressFunc} = text
+  console.log(inputText)
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={onPressFunc}>
       <View style={styles.Card}>
-        <Text>{text}</Text>
+        <Text>{inputText}</Text>
       </View>
     </TouchableOpacity>
   )
