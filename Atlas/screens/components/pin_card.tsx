@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native'
+import {StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native'
 import {colorTheme, screenHeight} from '../Home_Page'
 import {
   ReactElement,
@@ -11,9 +11,11 @@ const PinCard = ({text}) => {
   const {inputText} = text
   console.log(text)
   return (
-    <View style={styles.Card}>
-      <Text>{text}</Text>
-    </View>
+    <TouchableOpacity>
+      <View style={styles.Card}>
+        <Text>{text}</Text>
+      </View>
+    </TouchableOpacity>
   )
 }
 
