@@ -39,7 +39,7 @@ const LoginScreen = ({navigation}) => {
           console.log('User signed in and verified!')
           setEmail('')
           setPassword('')
-          navigation.navigate('MapScreen')
+          navigation.navigate('HomeScreen')
         } else {
           Alert.alert('Email not verified')
         }

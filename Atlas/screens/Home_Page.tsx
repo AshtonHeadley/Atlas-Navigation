@@ -23,12 +23,9 @@ const HomePage = ({navigation}) => {
   getUserName()
 
   let text = `Welcome ${name ? name : ''}`
+  /*
 
-  return (
-    <View style={styles.center}>
-      <Text>Home Page</Text>
-      <Text>{text}</Text>
-      <TouchableOpacity
+<TouchableOpacity
         onPress={async () => {
           try {
             await signOut(auth)
@@ -41,6 +38,29 @@ const HomePage = ({navigation}) => {
         }}>
         <Text>Sign Out</Text>
       </TouchableOpacity>
+
+
+*/
+  return (
+    <View style={styles.center}>
+      <View>
+        <Text>ATLAS</Text>
+        <TouchableOpacity
+          onPress={async () => {
+            try {
+              await signOut(auth)
+              console.log('signed out successfully')
+              navigation.goBack()
+            } catch (error) {
+              console.error('Error signing out:', error)
+              Alert.alert('An error occurred while signing out.')
+            }
+          }}>
+          <Text>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
+      <View></View>
+      <View></View>
     </View>
   )
 }

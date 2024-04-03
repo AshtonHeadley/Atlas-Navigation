@@ -14,7 +14,7 @@ const Main = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen name='Login' component={LoginScreen} />
         <Stack.Screen name='CreateAccount' component={CreateAccount} />
-        <Stack.Screen name='MapScreen' component={Map_Screen} />
+        <Stack.Screen name='HomeScreen' component={HomePage} />
       </Stack.Navigator>
     </NavigationContainer>
   )
