@@ -10,13 +10,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-} from '@firebase/auth'
+import {signInWithEmailAndPassword} from '@firebase/auth'
 import {FIREBASE_AUTH} from '../FirebaseConfig'
 
+// Global variable to store the email of the logged-in user
 export let GLOBAL_EMAIL = ''
 const screenHeight = Dimensions.get('window').height
 
@@ -26,6 +23,7 @@ const LoginScreen = ({navigation}) => {
   const [loading, setLoading] = useState(false)
   const auth = FIREBASE_AUTH
 
+  // Function to handle user sign-in
   const signIn = async () => {
     setLoading(true)
     try {
@@ -38,7 +36,7 @@ const LoginScreen = ({navigation}) => {
       if (auth.currentUser) {
         if (auth.currentUser.emailVerified) {
           console.log('User signed in and verified!')
-          GLOBAL_EMAIL = email
+          GLOBAL_EMAIL = email // Store the email in the global variable
           setEmail('')
           setPassword('')
           navigation.navigate('HomeScreen')
@@ -57,6 +55,7 @@ const LoginScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ATLAS</Text>
+      {/* Email input field */}
       <TextInput
         style={styles.input}
         placeholder='Email'
@@ -65,6 +64,7 @@ const LoginScreen = ({navigation}) => {
         onChangeText={newText => setEmail(newText)}
         value={email}
       />
+      {/* Password input field */}
       <TextInput
         style={styles.input}
         placeholder='Password'
@@ -73,18 +73,29 @@ const LoginScreen = ({navigation}) => {
         onChangeText={newText => setPassword(newText)}
         value={password}
       />
-      <TouchableOpacity>
+      {/* Forget password button */}
+      <TouchableOpacity
+        onPress={() => {
+          setEmail('ngub24@gmail.com')
+          setPassword('password')
+        }}>
         <Text style={styles.forgotPassword}>Forget password?</Text>
       </TouchableOpacity>
+      {/* Conditional rendering of login button or activity indicator */}
       {loading ? (
         <ActivityIndicator size={'large'} color='#0000ff' />
       ) : (
         <>
-          <TouchableOpacity onPress={signIn} style={styles.loginButton}>
+          <TouchableOpacity
+            onPress={() => {
+              signIn()
+            }}
+            style={styles.loginButton}>
             <Text style={styles.loginButtonText}>LOGIN</Text>
           </TouchableOpacity>
         </>
       )}
+      {/* Social login container */}
       <View style={styles.socialLoginContainer}>
         <TouchableOpacity style={styles.socialLoginButton}>
           <Image
@@ -95,6 +106,7 @@ const LoginScreen = ({navigation}) => {
           />
         </TouchableOpacity>
       </View>
+      {/* Create account button */}
       <TouchableOpacity
         onPress={() => {
           navigation.navigate('CreateAccount')
@@ -105,6 +117,7 @@ const LoginScreen = ({navigation}) => {
   )
 }
 
+// Color theme for the screen
 const colorTheme = '#4192ab'
 
 const styles = StyleSheet.create({
@@ -143,7 +156,7 @@ const styles = StyleSheet.create({
     marginBottom: screenHeight / 24,
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#ffff',
     fontWeight: 'bold',
   },
   socialLoginContainer: {

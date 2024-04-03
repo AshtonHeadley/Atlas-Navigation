@@ -4,7 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack'
 import LoginScreen from './screens/Login_Screen'
 import CreateAccount from './screens/CreateAccount_screen'
 import HomePage from './screens/Home_Page'
-import Map_Screen from './screens/Map_Screen'
+import Pins from './screens/Pins'
 
 const Stack = createNativeStackNavigator()
 
@@ -15,6 +15,7 @@ const Main = () => {
         <Stack.Screen name='Login' component={LoginScreen} />
         <Stack.Screen name='CreateAccount' component={CreateAccount} />
         <Stack.Screen name='HomeScreen' component={HomePage} />
+        <Stack.Screen name='PinScreen' component={Pins} />
       </Stack.Navigator>
     </NavigationContainer>
   )

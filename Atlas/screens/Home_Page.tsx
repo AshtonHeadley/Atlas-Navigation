@@ -13,9 +13,8 @@ import {
 } from 'react-native'
 import {FIREBASE_APP, FIREBASE_AUTH} from '../FirebaseConfig'
 import {collection, doc, getFirestore} from '@firebase/firestore'
-import React, {useState} from 'react'
+import React from 'react'
 import {GLOBAL_EMAIL} from './Login_Screen'
-import NavigationBar from './components/NavigationBar'
 
 export const screenWidth = Dimensions.get('window').width
 export const screenHeight = Dimensions.get('window').height
@@ -64,6 +63,9 @@ const HomePage = ({navigation}) => {
         }}>
         <View>
           <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('PinScreen')
+            }}
             style={{
               ...styles.Button,
               backgroundColor: colorTheme,

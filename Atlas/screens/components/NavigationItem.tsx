@@ -1,13 +1,13 @@
 import React from 'react'
 import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native'
-import {screenHeight} from '../Home_Page'
+import {colorTheme, screenHeight} from '../Home_Page'
 
 const NavigationItem = ({item}) => {
   const {icon, title, onPress} = item // Destructure item props
   return (
     <View style={styles.item}>
       <Text style={styles.text}>{title}</Text>
-      <TouchableOpacity onPress={onPress} style={styles.touchable}>
+      <TouchableOpacity style={styles.touchable} onPress={onPress}>
         <Image source={icon} style={{width: 48, height: 48}} />
       </TouchableOpacity>
     </View>
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   touchable: {
-    backgroundColor: '#9a9a9a',
+    backgroundColor: colorTheme,
     borderRadius: 15,
     padding: 12,
   },

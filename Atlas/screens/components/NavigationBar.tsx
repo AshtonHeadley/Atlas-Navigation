@@ -4,23 +4,19 @@ import NavigationItem from './NavigationItem'
 import {screenHeight} from '../Home_Page'
 
 export const homeNavItem = {
+  icon: require('../../assets/home.png'),
+  title: 'Home',
+}
+export const pinNavItem = {
   icon: require('../../assets/pin.png'),
-  onPress: () => console.log('Going to Home'),
   title: 'Pins',
 }
-export const leftNavItem = {
-  icon: require('../../assets/pin.png'),
-  onPress: () => console.log('Pin Pressed'),
-  title: 'Pins',
-}
-export const centerNavItem = {
+export const friendsNavItem = {
   icon: require(`../../assets/multiple-users-silhouette.png`),
-  onPress: () => console.log('Friends Pressed'),
   title: 'Friends',
 }
-export const rightNavItem = {
+export const profileNavItem = {
   icon: require(`../../assets/profile-user.png`),
-  onPress: () => console.log('Profile Pressed'),
   title: 'Profile',
 }
 
@@ -37,7 +33,6 @@ const NavigationBar = ({leftItem, centerItem, rightItem}) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    // justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: screenHeight / 80,
   },
