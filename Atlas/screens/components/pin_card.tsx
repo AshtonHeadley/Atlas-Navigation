@@ -1,5 +1,5 @@
-import {StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native'
-import {colorTheme, screenHeight, screenWidth} from '../Home_Page'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {colorTheme, screenHeight} from '../Home_Page'
 import {useState} from 'react'
 import ExpandableView from './Expandable_View'
 
@@ -12,6 +12,7 @@ const PinCard = ({text, onPressDel}) => {
   return (
     <TouchableOpacity
       onPress={() => {
+        setIsExpanded(!isExpanded)
         if (isExpanded) {
           setBottomWidth(0)
           setRadius(0)
@@ -19,7 +20,6 @@ const PinCard = ({text, onPressDel}) => {
           setBottomWidth(3)
           setRadius(10)
         }
-        setIsExpanded(!isExpanded)
       }}>
       <View
         style={{

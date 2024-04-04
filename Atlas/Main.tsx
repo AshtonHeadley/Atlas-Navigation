@@ -1,20 +1,32 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import {NavigationContainer} from '@react-navigation/native'
 import {createNativeStackNavigator} from '@react-navigation/native-stack'
 import LoginScreen from './screens/Login_Screen'
 import CreateAccount from './screens/CreateAccount_screen'
 import HomePage from './screens/Home_Page'
 import Pins from './screens/Pins'
+import {PERSISTENT_AUTH} from './FirebaseConfig'
 
 const Stack = createNativeStackNavigator()
 
 const Main = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const unsubscribe = PERSISTENT_AUTH.onAuthStateChanged(user => {
+      setIsLoggedIn(!!user) // Check if a user object exists
+    })
+    return unsubscribe
+  }, [])
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen name='Login' component={LoginScreen} />
+        {isLoggedIn ? (
+          <Stack.Screen name='HomeScreen' component={HomePage} />
+        ) : (
+          <Stack.Screen name='Login' component={LoginScreen} />
+        )}
         <Stack.Screen name='CreateAccount' component={CreateAccount} />
-        <Stack.Screen name='HomeScreen' component={HomePage} />
         <Stack.Screen name='PinScreen' component={Pins} />
       </Stack.Navigator>
     </NavigationContainer>

@@ -9,7 +9,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  Touchable,
   TouchableOpacity,
   View,
 } from 'react-native'
@@ -27,8 +26,6 @@ const Pins = ({navigation}) => {
   const [pinCards, setPinCards] = useState([...pinComponents.values()])
   const [loading, setLoading] = useState(false)
   const [isOverlayVisible, setIsOverlayVisible] = useState(false)
-  //   let overLayOutput = {title: '', desc: ''}
-
   const showOverlay = () => setIsOverlayVisible(true)
   const hideOverlay = () => setIsOverlayVisible(false)
 
@@ -61,7 +58,7 @@ const Pins = ({navigation}) => {
       console.warn(err)
     }
   }
-
+  // Function to get permission for ios
   const requestLocationPermissionIOS = async () => {
     const openSetting = () => {
       Linking.openSettings().catch(() => {
@@ -92,7 +89,7 @@ const Pins = ({navigation}) => {
 
     return false
   }
-
+  // Request permission handler, checks running OS
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
       return await requestLocationPermissionAndroid()
@@ -101,16 +98,18 @@ const Pins = ({navigation}) => {
     }
   }
 
+  //Gets location and creates card to display
   const getLocation = async (inputTitle: String, desc: String) => {
-    setLoading(true)
-    const res = await requestLocationPermission()
+    setLoading(true) //disables adding new pin until current is done being added
+    const res = await requestLocationPermission() //call to permission handler
     if (res) {
       GeoLocation.getCurrentPosition(
         position => {
-          const {latitude, longitude} = position.coords
+          const {latitude, longitude} = position.coords //output of get CurrentPosition
           const specialNum = Math.random()
-          const key = latitude * longitude * specialNum
+          const key = latitude * longitude * specialNum //unique key for each card. For deletion + DB
           const card = {
+            //card data object
             title: `${inputTitle}`,
             description: `${latitude}, ${longitude}`,
             coordinates: {
@@ -119,20 +118,24 @@ const Pins = ({navigation}) => {
               specialNum: specialNum,
             },
           }
+          //function passed into every card's delete button
           const func = {
             onPressDel: () => {
               const cardKey =
                 card.coordinates.lat *
                 card.coordinates.long *
                 card.coordinates.specialNum
-              pinComponents.delete(cardKey)
-              setPinCards([...pinComponents.values()])
+              pinComponents.delete(cardKey) //remove card from map using unique key to find
+              setPinCards([...pinComponents.values()]) //update currently shown list
             },
           }
+          //Create custom PinCard
           const pinCard = (
             <PinCard text={card} onPressDel={func.onPressDel} key={key} />
           )
+          //Add pinCard to Map
           pinComponents.set(key, pinCard)
+          //update currently shown list
           setPinCards([...pinCards, pinCard])
           setLoading(false)
         },
@@ -145,20 +148,24 @@ const Pins = ({navigation}) => {
   }
   return (
     <View style={{flex: 1, backgroundColor: 'white'}}>
-      <PinOverlayInput
+      <PinOverlayInput //Overlay to input info when adding pin, custom component
         isVisible={isOverlayVisible}
         onCancel={hideOverlay}
         onSubmit={handleOverlaySubmit}
       />
-      <View
+      <View //top section, title and add pin button
         style={{
           flex: 1.75,
           marginHorizontal: screenWidth / 12,
         }}>
         <View style={{flex: 1, justifyContent: 'flex-end'}}>
-          <Text style={styles.TitleText}>Pins</Text>
+          <Text //title
+            style={styles.TitleText}>
+            Pins
+          </Text>
         </View>
-        <View style={{flex: 0, justifyContent: 'flex-end'}}>
+        <View //add pin button
+          style={{flex: 0, justifyContent: 'flex-end'}}>
           {loading ? (
             <View style={{height: screenHeight / 11}}>
               <ActivityIndicator size={'large'} color='grey' />
@@ -182,11 +189,14 @@ const Pins = ({navigation}) => {
           )}
         </View>
       </View>
-      <View style={{flex: 4.5, marginVertical: 10}}>
+      <View
+        style={{flex: 4.5, marginVertical: 10}} //list of pin cards
+      >
         <View style={{marginHorizontal: screenWidth / 28}}>
           <View style={{flex: 1}}></View>
           <ScrollView contentContainerStyle={{flexGrow: 1}}>
             {pinCards.map(item => {
+              //maps pin cards to scrollview
               return item
             })}
           </ScrollView>
@@ -196,7 +206,7 @@ const Pins = ({navigation}) => {
         style={{
           flex: 1,
         }}>
-        <NavigationBar
+        <NavigationBar //navigation bar on bottom of screen
           leftItem={{
             ...homeNavItem,
             onPress: () => {
@@ -210,6 +220,7 @@ const Pins = ({navigation}) => {
   )
 }
 
+//Styling options for this page
 const styles = StyleSheet.create({
   Button: {
     width: '100%',

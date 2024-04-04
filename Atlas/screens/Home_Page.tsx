@@ -11,21 +11,22 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import {FIREBASE_APP, FIREBASE_AUTH} from '../FirebaseConfig'
-import {collection, doc, getFirestore} from '@firebase/firestore'
+import {FIREBASE_AUTH, PERSISTENT_AUTH} from '../FirebaseConfig'
 import React from 'react'
-import {GLOBAL_EMAIL} from './Login_Screen'
 
 export const screenWidth = Dimensions.get('window').width
 export const screenHeight = Dimensions.get('window').height
 export const pinComponents = new Map()
+export let GLOBAL_EMAIL = ''
 
 const HomePage = ({navigation}) => {
+  GLOBAL_EMAIL = PERSISTENT_AUTH.currentUser?.email
+    ? PERSISTENT_AUTH.currentUser?.email
+    : ''
+  console.log(GLOBAL_EMAIL)
   const auth = FIREBASE_AUTH
-  const db = getFirestore(FIREBASE_APP)
-  const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL)
-
   return (
+    //Screen with 3 buttons
     <View style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{flex: 1}}>
         <View
@@ -35,11 +36,11 @@ const HomePage = ({navigation}) => {
           }}>
           <View style={styles.TopRow}>
             <Text style={styles.TitleText}>ATLAS</Text>
-            <TouchableOpacity
+            <TouchableOpacity //sign out button --> too change later
               style={styles.SignOut}
               onPress={async () => {
                 try {
-                  await signOut(auth)
+                  await signOut(PERSISTENT_AUTH)
                   console.log('signed out successfully')
                   navigation.goBack()
                 } catch (error) {
@@ -106,7 +107,7 @@ const HomePage = ({navigation}) => {
 }
 
 export const colorTheme = '#4192ab'
-
+// styling options
 const styles = StyleSheet.create({
   TopRow: {
     flexDirection: 'row',

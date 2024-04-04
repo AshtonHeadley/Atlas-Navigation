@@ -7,7 +7,7 @@ const ExpandableView = ({expanded = false, onPressDel}) => {
   useEffect(() => {
     Animated.timing(height, {
       toValue: !expanded ? screenHeight / 12 : 0,
-      duration: 150,
+      duration: 10,
       useNativeDriver: false,
     }).start()
   }, [expanded, height])

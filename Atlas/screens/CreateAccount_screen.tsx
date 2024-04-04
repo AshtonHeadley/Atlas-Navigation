@@ -35,49 +35,66 @@ import {
 const screenHeight = Dimensions.get('window').height
 
 const CreateAccount = ({navigation}) => {
+  //TEXTFIELD SETTERS
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  //TEXTFIELD SETTERS
   const [loading, setLoading] = useState(false)
+
+  //Link to firebase
   const auth = FIREBASE_AUTH
   const db = getFirestore(FIREBASE_APP)
 
-  const addUserData = async (
-    uid: string,
-    userName: string,
-    userEmail: string,
-  ) => {
+  //add user input data to DB for later access
+  const addUserData = async (userName: string, userEmail: string) => {
     try {
       console.log('Before Firestore operation')
       const data = {
         name: userName,
         email: userEmail.toLowerCase(),
       }
+      //document name will be email input, within the user's collection
       const userDocRef = doc(collection(db, 'users'), userEmail.toLowerCase()) //reference to document in firebase
       await setDoc(userDocRef, data) //adding data to document path
-      console.log(`${userName.toLowerCase()} data added successfully`)
     } catch (error) {
       console.error('Error adding data:', error)
     }
   }
 
+  //Sign up handler
   const signUp = async () => {
-    if (!email.includes('@')) {
+    //Checks prior to authentication
+    setEmail(email.trim())
+    if (!email.includes('@') || email === '') {
       Alert.alert('Invalid Email')
+      return
+    }
+    if (password.length < 6) {
+      Alert.alert('Password is too short')
+      return
+    }
+    if (!password.includes('!' || '@' || '$' || '%')) {
+      Alert.alert(
+        `Password does not include one of the following: \n '!', '@', '$', or '%'`,
+      )
       return
     }
     if (password !== confirmPassword) {
       Alert.alert('Passwords do not match')
       return
     }
-
+    //If all cases are confirmed
     setLoading(true)
     try {
+      //add user to auth system
       const {user} = await createUserWithEmailAndPassword(auth, email, password)
+      //send user email verification to confirm account
       await sendEmailVerification(user)
       Alert.alert('Check your email')
-      await addUserData(user.uid, name, email)
+      //add user's data to DB
+      await addUserData(name, email)
       navigation.goBack()
     } catch (error) {
       console.log(email)
@@ -171,7 +188,7 @@ const CreateAccount = ({navigation}) => {
 }
 
 const colorTheme = '#4192ab'
-
+//Custom styling option
 const styles = StyleSheet.create({
   Center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   CreateAccountStyle: {

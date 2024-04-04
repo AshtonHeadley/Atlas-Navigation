@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {
   ActivityIndicator,
   Alert,
@@ -10,8 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import {signInWithEmailAndPassword} from '@firebase/auth'
-import {FIREBASE_AUTH} from '../FirebaseConfig'
+import {setPersistence, signInWithEmailAndPassword} from '@firebase/auth'
+import {FIREBASE_AUTH, PERSISTENT_AUTH} from '../FirebaseConfig'
 
 // Global variable to store the email of the logged-in user
 export let GLOBAL_EMAIL = ''
@@ -25,24 +25,21 @@ const LoginScreen = ({navigation}) => {
 
   // Function to handle user sign-in
   const signIn = async () => {
-    //TEMPORARY BLOCK, REMOVE LATER
-
-    //TEMPORARY BLOCK, REMOVE LATER
-
+    //disables pressing log in again
     setLoading(true)
     try {
-      console.log('pressed')
+      //sends auth request to firebase
       const signedInUser = await signInWithEmailAndPassword(
-        auth,
+        PERSISTENT_AUTH,
         email,
         password,
       )
+      //if auth request works and user's email is verified...
       if (auth.currentUser) {
         if (auth.currentUser.emailVerified) {
-          console.log('User signed in and verified!')
-          GLOBAL_EMAIL = email // Store the email in the global variable
           setEmail('')
           setPassword('')
+          //allow access to app
           navigation.navigate('HomeScreen')
         } else {
           Alert.alert('Email not verified')
@@ -124,6 +121,7 @@ const LoginScreen = ({navigation}) => {
 // Color theme for the screen
 const colorTheme = '#4192ab'
 
+//custom styling options
 const styles = StyleSheet.create({
   container: {
     flex: 1,
