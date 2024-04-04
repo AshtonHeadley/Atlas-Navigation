@@ -11,8 +11,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import {FIREBASE_AUTH, PERSISTENT_AUTH} from '../FirebaseConfig'
+import {FIREBASE_APP, FIREBASE_AUTH, PERSISTENT_AUTH} from '../FirebaseConfig'
 import React from 'react'
+import {
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  setDoc,
+} from '@firebase/firestore'
 
 export const screenWidth = Dimensions.get('window').width
 export const screenHeight = Dimensions.get('window').height
@@ -20,6 +27,8 @@ export const pinComponents = new Map()
 export let GLOBAL_EMAIL = ''
 
 const HomePage = ({navigation}) => {
+  const db = getFirestore(FIREBASE_APP)
+
   GLOBAL_EMAIL = PERSISTENT_AUTH.currentUser?.email
     ? PERSISTENT_AUTH.currentUser?.email
     : ''
@@ -65,7 +74,7 @@ const HomePage = ({navigation}) => {
         }}>
         <View>
           <TouchableOpacity
-            onPress={() => {
+            onPress={async () => {
               navigation.navigate('PinScreen')
             }}
             style={{

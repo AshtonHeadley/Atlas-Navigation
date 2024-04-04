@@ -14,7 +14,6 @@ import {setPersistence, signInWithEmailAndPassword} from '@firebase/auth'
 import {FIREBASE_AUTH, PERSISTENT_AUTH} from '../FirebaseConfig'
 
 // Global variable to store the email of the logged-in user
-export let GLOBAL_EMAIL = ''
 const screenHeight = Dimensions.get('window').height
 
 const LoginScreen = ({navigation}) => {

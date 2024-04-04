@@ -17,10 +17,81 @@ import NavigationBar, {
   homeNavItem,
   profileNavItem,
 } from './components/NavigationBar'
-import {colorTheme, pinComponents, screenHeight, screenWidth} from './Home_Page'
+import {
+  GLOBAL_EMAIL,
+  colorTheme,
+  pinComponents,
+  screenHeight,
+  screenWidth,
+} from './Home_Page'
 import PinCard from './components/pin_card'
 import GeoLocation from 'react-native-geolocation-service'
 import PinOverlayInput from './components/pin_card_overlay'
+import {
+  doc,
+  collection,
+  setDoc,
+  getFirestore,
+  getDocs,
+  deleteDoc,
+} from '@firebase/firestore'
+import {FIREBASE_APP} from '../FirebaseConfig'
+import {remove} from '@firebase/database'
+
+const db = getFirestore(FIREBASE_APP)
+
+const getPinCollection = () => {
+  const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase()) //reference to document in firebase
+  const pinCollection = collection(userDocRef, 'Pins')
+  return pinCollection
+}
+
+const loadPinComponents = async () => {
+  const querySnapshot = await getDocs(getPinCollection())
+  const docs = querySnapshot.docs.map(doc => doc.data())
+  return docs
+}
+
+const deletePinComponent = async (title: string) => {
+  const docToRemove = doc(getPinCollection(), title)
+  await deleteDoc(docToRemove)
+}
+
+const deleteFunc = (
+  card: any,
+  setPinCardsCallback: (newCards: any[]) => void,
+) => {
+  const cardKey = card.title
+  console.log(pinComponents.delete(cardKey)) //remove card from map using unique key to find
+  deletePinComponent(card.title)
+  setPinCardsCallback([...pinComponents.values()])
+}
+
+const createPinCard = (
+  inputTitle: string,
+  latitude: number,
+  longitude: number,
+  specialNum: number,
+  key: number,
+  setPinCardsCallback: (newCards: any[]) => void,
+) => {
+  const card = {
+    //card data object
+    title: `${inputTitle}`,
+    description: `${latitude}, ${longitude}`,
+    coordinates: {
+      lat: latitude,
+      long: longitude,
+      specialNum: specialNum,
+    },
+  }
+  //function passed into every card's delete button
+  const func = {
+    onPressDel: deleteFunc.bind(null, card, setPinCardsCallback),
+  }
+  //Create custom PinCard
+  return <PinCard text={card} onPressDel={func.onPressDel} key={key} />
+}
 
 const Pins = ({navigation}) => {
   const [pinCards, setPinCards] = useState([...pinComponents.values()])
@@ -29,9 +100,57 @@ const Pins = ({navigation}) => {
   const showOverlay = () => setIsOverlayVisible(true)
   const hideOverlay = () => setIsOverlayVisible(false)
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const fetchedDocs = await loadPinComponents()
+      console.log('here')
+      const updatedPinCards = fetchedDocs.map(doc => {
+        const pinCard = createPinCard(
+          doc.title,
+          doc.latitude,
+          doc.longitude,
+          doc.specialNum,
+          doc.key,
+          setPinCards,
+        )
+        pinComponents.set(doc.title, pinCard)
+        return pinCard
+      })
+      setPinCards(updatedPinCards)
+    }
+    fetchData()
+  }, [])
+
   const handleOverlaySubmit = async (title: any, description: any) => {
     await getLocation(title, description)
     hideOverlay()
+  }
+
+  const addPinToDB = async (
+    title: string,
+    latitude: number,
+    longitude: number,
+    specialNum: number,
+    key: number,
+  ) => {
+    try {
+      const data = {
+        title: title,
+        latitude: latitude,
+        longitude: longitude,
+        specialNum: specialNum,
+        key: key,
+      }
+      //document name will be email input, within the user's collection
+      const userDocRef = doc(
+        collection(db, 'users'),
+        GLOBAL_EMAIL.toLowerCase(),
+      ) //reference to document in firebase
+      const pinCollection = doc(collection(userDocRef, 'Pins'), title)
+      await setDoc(pinCollection, data) //adding data to document path
+    } catch (error) {
+      console.error('Error adding data:', error)
+    }
   }
 
   // Function to get permission for location mainly for android
@@ -99,44 +218,31 @@ const Pins = ({navigation}) => {
   }
 
   //Gets location and creates card to display
-  const getLocation = async (inputTitle: String, desc: String) => {
+  const getLocation = async (inputTitle: string, desc: String) => {
+    if (pinComponents.has(inputTitle)) {
+      Alert.alert('Pin with that title already exists')
+      return
+    }
     setLoading(true) //disables adding new pin until current is done being added
     const res = await requestLocationPermission() //call to permission handler
     if (res) {
       GeoLocation.getCurrentPosition(
-        position => {
+        async position => {
           const {latitude, longitude} = position.coords //output of get CurrentPosition
           const specialNum = Math.random()
-          const key = latitude * longitude * specialNum //unique key for each card. For deletion + DB
-          const card = {
-            //card data object
-            title: `${inputTitle}`,
-            description: `${latitude}, ${longitude}`,
-            coordinates: {
-              lat: latitude,
-              long: longitude,
-              specialNum: specialNum,
-            },
-          }
-          //function passed into every card's delete button
-          const func = {
-            onPressDel: () => {
-              const cardKey =
-                card.coordinates.lat *
-                card.coordinates.long *
-                card.coordinates.specialNum
-              pinComponents.delete(cardKey) //remove card from map using unique key to find
-              setPinCards([...pinComponents.values()]) //update currently shown list
-            },
-          }
-          //Create custom PinCard
-          const pinCard = (
-            <PinCard text={card} onPressDel={func.onPressDel} key={key} />
+          const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
+          const pinCard = createPinCard(
+            inputTitle,
+            latitude,
+            longitude,
+            specialNum,
+            key,
+            setPinCards,
           )
-          //Add pinCard to Map
-          pinComponents.set(key, pinCard)
+          pinComponents.set(inputTitle, pinCard)
           //update currently shown list
           setPinCards([...pinCards, pinCard])
+          await addPinToDB(inputTitle, latitude, longitude, specialNum, key)
           setLoading(false)
         },
         error => {
