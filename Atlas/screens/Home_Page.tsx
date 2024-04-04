@@ -18,7 +18,7 @@ import {GLOBAL_EMAIL} from './Login_Screen'
 
 export const screenWidth = Dimensions.get('window').width
 export const screenHeight = Dimensions.get('window').height
-export const pinComponents: any[] = []
+export const pinComponents = new Map()
 
 const HomePage = ({navigation}) => {
   const auth = FIREBASE_AUTH

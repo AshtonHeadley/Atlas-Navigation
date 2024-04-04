@@ -2,7 +2,7 @@ import {StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native'
 import {colorTheme, screenHeight} from '../Home_Page'
 
 const PinCard = ({text}) => {
-  const {inputText, onPressFunc} = text
+  const {inputText, onPressFunc, coordinates} = text
   console.log(inputText)
   return (
     <TouchableOpacity onPress={onPressFunc}>

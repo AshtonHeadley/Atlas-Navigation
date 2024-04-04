@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Linking,
@@ -22,7 +23,8 @@ import PinCard from './components/pin_card'
 import GeoLocation from 'react-native-geolocation-service'
 
 const Pins = ({navigation}) => {
-  const [pinCards, setPinCards] = useState([...pinComponents])
+  const [pinCards, setPinCards] = useState([...pinComponents.values()])
+  const [loading, setLoading] = useState(false)
   // Function to get permission for location mainly for android
   const requestLocationPermissionAndroid = async () => {
     try {
@@ -88,22 +90,36 @@ const Pins = ({navigation}) => {
   }
 
   const getLocation = async () => {
+    setLoading(true)
     const res = await requestLocationPermission()
     if (res) {
       GeoLocation.getCurrentPosition(
         position => {
           const {latitude, longitude} = position.coords
-          const key = pinCards.length
+          const specialNum = Math.random()
+          const key = latitude * longitude * specialNum
           const card = {
-            inputText: `${(key + 1).toString()} :: ${latitude}, ${longitude}`,
-            onPressFunc: async () => {
-              //   pinComponents.splice(key, 1)
-              // r  setPinCards([...pinComponents])
+            inputText: `${(1 + specialNum).toPrecision(
+              3,
+            )} :: ${latitude}, ${longitude}`,
+            coordinates: {
+              lat: latitude,
+              long: longitude,
+              specialNum: specialNum,
+            },
+            onPressFunc: () => {
+              const cardKey =
+                card.coordinates.lat *
+                card.coordinates.long *
+                card.coordinates.specialNum
+              pinComponents.delete(cardKey)
+              setPinCards([...pinComponents.values()])
             },
           }
           const pinCard = <PinCard text={card} key={key} />
-          pinComponents.push(pinCard)
+          pinComponents.set(key, pinCard)
           setPinCards([...pinCards, pinCard])
+          setLoading(false)
         },
         error => {
           console.log(error.code, error.message)
@@ -123,19 +139,25 @@ const Pins = ({navigation}) => {
           <Text style={styles.TitleText}>Pins</Text>
         </View>
         <View style={{flex: 0, justifyContent: 'flex-end'}}>
-          <TouchableOpacity
-            onPress={async () => {
-              await getLocation()
-            }}
-            style={{
-              ...styles.Button,
-              backgroundColor: colorTheme,
-            }}>
-            <Image
-              source={require('../assets/add.png')}
-              style={{width: 32, height: 32}}
-            />
-          </TouchableOpacity>
+          {loading ? (
+            <ActivityIndicator size={'large'} color='#0000ff' />
+          ) : (
+            <>
+              <TouchableOpacity
+                onPress={async () => {
+                  await getLocation()
+                }}
+                style={{
+                  ...styles.Button,
+                  backgroundColor: colorTheme,
+                }}>
+                <Image
+                  source={require('../assets/add.png')}
+                  style={{width: 32, height: 32}}
+                />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </View>
       <View style={{flex: 4.5}}>
