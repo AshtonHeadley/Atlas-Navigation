@@ -62,7 +62,7 @@ const deleteFunc = (
   setPinCardsCallback: (newCards: any[]) => void,
 ) => {
   const cardKey = card.title
-  console.log(pinComponents.delete(cardKey)) //remove card from map using unique key to find
+  pinComponents.delete(cardKey) //remove card from map using unique key to find
   deletePinComponent(card.title)
   setPinCardsCallback([...pinComponents.values()])
 }
@@ -103,7 +103,6 @@ const Pins = ({navigation}) => {
   useEffect(() => {
     const fetchData = async () => {
       const fetchedDocs = await loadPinComponents()
-      console.log('here')
       const updatedPinCards = fetchedDocs.map(doc => {
         const pinCard = createPinCard(
           doc.title,
@@ -331,7 +330,7 @@ const styles = StyleSheet.create({
   Button: {
     width: '100%',
     height: screenHeight / 11,
-    borderRadius: 15,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },
