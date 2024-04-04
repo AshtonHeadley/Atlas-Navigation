@@ -7,7 +7,7 @@ const PinCard = ({text, onPressDel}) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const {title, description, coordinates} = text
   const [bottomWidth, setBottomWidth] = useState(3)
-  const [radius, setRadius] = useState(10)
+  const [radius, setRadius] = useState(5)
 
   return (
     <TouchableOpacity
@@ -18,7 +18,7 @@ const PinCard = ({text, onPressDel}) => {
           setRadius(0)
         } else {
           setBottomWidth(3)
-          setRadius(10)
+          setRadius(5)
         }
       }}>
       <View
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
   Card: {
     flex: 1,
     padding: 5,
-    borderTopRightRadius: 10,
-    borderTopLeftRadius: 10,
+    borderTopRightRadius: 5,
+    borderTopLeftRadius: 5,
     borderTopWidth: 3,
     borderRightWidth: 3,
     borderLeftWidth: 3,

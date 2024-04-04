@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: 5,
     elevation: 3,
     backgroundColor: 'white',
   },
