@@ -111,7 +111,8 @@ const Pins = ({navigation}) => {
           const specialNum = Math.random()
           const key = latitude * longitude * specialNum
           const card = {
-            inputText: `${inputTitle} :: ${latitude}, ${longitude}`,
+            title: `${inputTitle}`,
+            description: `${latitude}, ${longitude}`,
             coordinates: {
               lat: latitude,
               long: longitude,

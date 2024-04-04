@@ -1,11 +1,11 @@
 import {StyleSheet, Text, Touchable, TouchableOpacity, View} from 'react-native'
-import {colorTheme, screenHeight} from '../Home_Page'
+import {colorTheme, screenHeight, screenWidth} from '../Home_Page'
 import {useState} from 'react'
 import ExpandableView from './Expandable_View'
 
 const PinCard = ({text, onPressDel}) => {
   const [isExpanded, setIsExpanded] = useState(true)
-  const {inputText, coordinates} = text
+  const {title, description, coordinates} = text
   const [bottomWidth, setBottomWidth] = useState(3)
   const [radius, setRadius] = useState(10)
 
@@ -28,7 +28,8 @@ const PinCard = ({text, onPressDel}) => {
           borderBottomRightRadius: radius,
           borderBottomLeftRadius: radius,
         }}>
-        <Text>{inputText}</Text>
+        <Text style={styles.TitleText}>{title}</Text>
+        <Text style={styles.SubTitleText}>Location: {description}</Text>
       </View>
       <ExpandableView expanded={isExpanded} onPressDel={onPressDel} />
     </TouchableOpacity>
@@ -49,6 +50,22 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  TitleText: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    flex: 1,
+    fontSize: screenHeight / 24,
+    fontWeight: '300',
+    color: colorTheme,
+  },
+  SubTitleText: {
+    justifyContent: 'center',
+    alignContent: 'center',
+    flex: 1,
+    fontSize: screenHeight / 48,
+    fontWeight: 'bold',
+    color: 'black',
   },
 })
 

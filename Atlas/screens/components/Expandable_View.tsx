@@ -33,10 +33,10 @@ const ExpandableView = ({expanded = false, onPressDel}) => {
             justifyContent: 'center',
           }}>
           <TouchableOpacity onPress={onPressDel} style={styles.button}>
-            <Text>Delete</Text>
+            <Text style={styles.SubTitleText}>Delete</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>
-            <Text>Navigate</Text>
+            <Text style={styles.SubTitleText}>Navigate</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -59,6 +59,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 3,
     backgroundColor: 'white',
+  },
+  SubTitleText: {
+    fontSize: screenHeight / 48,
+    fontWeight: 'bold',
+    color: 'black',
   },
 })
 
