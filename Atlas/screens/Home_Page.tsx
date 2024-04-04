@@ -26,7 +26,7 @@ const HomePage = ({navigation}) => {
   const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL)
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
       <View style={{flex: 1}}>
         <View
           style={{

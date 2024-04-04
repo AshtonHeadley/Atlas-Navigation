@@ -117,7 +117,9 @@ const Pins = ({navigation}) => {
               long: longitude,
               specialNum: specialNum,
             },
-            onPressFunc: () => {
+          }
+          const func = {
+            onPressDel: () => {
               const cardKey =
                 card.coordinates.lat *
                 card.coordinates.long *
@@ -126,7 +128,9 @@ const Pins = ({navigation}) => {
               setPinCards([...pinComponents.values()])
             },
           }
-          const pinCard = <PinCard text={card} key={key} />
+          const pinCard = (
+            <PinCard text={card} onPressDel={func.onPressDel} key={key} />
+          )
           pinComponents.set(key, pinCard)
           setPinCards([...pinCards, pinCard])
           setLoading(false)
@@ -139,7 +143,7 @@ const Pins = ({navigation}) => {
     }
   }
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
       <PinOverlayInput
         isVisible={isOverlayVisible}
         onCancel={hideOverlay}
@@ -177,7 +181,7 @@ const Pins = ({navigation}) => {
           )}
         </View>
       </View>
-      <View style={{flex: 4.5}}>
+      <View style={{flex: 4.5, marginVertical: 10}}>
         <View style={{marginHorizontal: screenWidth / 28}}>
           <View style={{flex: 1}}></View>
           <ScrollView contentContainerStyle={{flexGrow: 1}}>
