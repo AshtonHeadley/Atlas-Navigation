@@ -21,10 +21,22 @@ import NavigationBar, {
 import {colorTheme, pinComponents, screenHeight, screenWidth} from './Home_Page'
 import PinCard from './components/pin_card'
 import GeoLocation from 'react-native-geolocation-service'
+import PinOverlayInput from './components/pin_card_overlay'
 
 const Pins = ({navigation}) => {
   const [pinCards, setPinCards] = useState([...pinComponents.values()])
   const [loading, setLoading] = useState(false)
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false)
+  //   let overLayOutput = {title: '', desc: ''}
+
+  const showOverlay = () => setIsOverlayVisible(true)
+  const hideOverlay = () => setIsOverlayVisible(false)
+
+  const handleOverlaySubmit = async (title: any, description: any) => {
+    await getLocation(title, description)
+    hideOverlay()
+  }
+
   // Function to get permission for location mainly for android
   const requestLocationPermissionAndroid = async () => {
     try {
@@ -89,7 +101,7 @@ const Pins = ({navigation}) => {
     }
   }
 
-  const getLocation = async () => {
+  const getLocation = async (inputTitle: String, desc: String) => {
     setLoading(true)
     const res = await requestLocationPermission()
     if (res) {
@@ -99,9 +111,7 @@ const Pins = ({navigation}) => {
           const specialNum = Math.random()
           const key = latitude * longitude * specialNum
           const card = {
-            inputText: `${(1 + specialNum).toPrecision(
-              3,
-            )} :: ${latitude}, ${longitude}`,
+            inputText: `${inputTitle} :: ${latitude}, ${longitude}`,
             coordinates: {
               lat: latitude,
               long: longitude,
@@ -130,6 +140,11 @@ const Pins = ({navigation}) => {
   }
   return (
     <View style={{flex: 1}}>
+      <PinOverlayInput
+        isVisible={isOverlayVisible}
+        onCancel={hideOverlay}
+        onSubmit={handleOverlaySubmit}
+      />
       <View
         style={{
           flex: 1.75,
@@ -140,12 +155,14 @@ const Pins = ({navigation}) => {
         </View>
         <View style={{flex: 0, justifyContent: 'flex-end'}}>
           {loading ? (
-            <ActivityIndicator size={'large'} color='#0000ff' />
+            <View style={{height: screenHeight / 11}}>
+              <ActivityIndicator size={'large'} color='grey' />
+            </View>
           ) : (
             <>
               <TouchableOpacity
                 onPress={async () => {
-                  await getLocation()
+                  showOverlay()
                 }}
                 style={{
                   ...styles.Button,
