@@ -2,8 +2,15 @@ import React, {useEffect, useState} from 'react'
 import {StyleSheet, View, TouchableOpacity, Animated, Text} from 'react-native'
 import {colorTheme, screenHeight} from '../Home_Page'
 
-const ExpandableView = ({expanded = false, onPressDel}) => {
+const ExpandableView = ({
+  expanded,
+  onPressNav = () => {},
+  onPressDel = () => {},
+  coordinates = {lat: 0, long: 0},
+}) => {
+  const {lat, long} = coordinates
   const [height] = useState(new Animated.Value(0))
+
   useEffect(() => {
     Animated.timing(height, {
       toValue: !expanded ? screenHeight / 12 : 0,
@@ -35,7 +42,7 @@ const ExpandableView = ({expanded = false, onPressDel}) => {
           <TouchableOpacity onPress={onPressDel} style={styles.button}>
             <Text style={styles.SubTitleText}>Delete</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity onPress={onPressNav} style={styles.button}>
             <Text style={styles.SubTitleText}>Navigate</Text>
           </TouchableOpacity>
         </View>
