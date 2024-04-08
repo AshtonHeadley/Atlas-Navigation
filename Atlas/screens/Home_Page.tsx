@@ -51,7 +51,7 @@ const HomePage = ({navigation}) => {
                 try {
                   await signOut(PERSISTENT_AUTH)
                   console.log('signed out successfully')
-                  navigation.navigate('login')
+                  navigation.navigate('LoginScreen')
                 } catch (error) {
                   console.error('Error signing out:', error)
                   Alert.alert('An error occurred while signing out.')
