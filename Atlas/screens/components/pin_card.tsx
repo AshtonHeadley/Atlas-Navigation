@@ -3,7 +3,7 @@ import {colorTheme, screenHeight} from '../Home_Page'
 import {useState} from 'react'
 import ExpandableView from './Expandable_View'
 
-const PinCard = ({text, onPressDel}) => {
+const PinCard = ({text, onPressDel, onPressNav}) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const {title, description, coordinates} = text
   const [bottomWidth, setBottomWidth] = useState(3)
@@ -31,7 +31,12 @@ const PinCard = ({text, onPressDel}) => {
         <Text style={styles.TitleText}>{title}</Text>
         <Text style={styles.SubTitleText}>Location: {description}</Text>
       </View>
-      <ExpandableView expanded={isExpanded} onPressDel={onPressDel} />
+      <ExpandableView
+        expanded={isExpanded}
+        onPressDel={onPressDel}
+        onPressNav={onPressNav}
+        coordinates={coordinates}
+      />
     </TouchableOpacity>
   )
 }

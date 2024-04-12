@@ -6,6 +6,8 @@ import CreateAccount from './Screens/CreateAccount_screen'
 import HomePage from './Screens/Home_Page'
 import Pins from './Screens/Pins'
 import {PERSISTENT_AUTH} from './FirebaseConfig'
+import CompassPage from './screens/Navigation'
+import ExpandableView from './screens/components/Expandable_View'
 
 const Stack = createNativeStackNavigator()
 
@@ -24,10 +26,11 @@ const Main = () => {
         {isLoggedIn ? (
           <Stack.Screen name='HomeScreen' component={HomePage} />
         ) : (
-          <Stack.Screen name='Login' component={LoginScreen} />
+          <Stack.Screen name='LoginScreen' component={LoginScreen} />
         )}
         <Stack.Screen name='CreateAccount' component={CreateAccount} />
         <Stack.Screen name='PinScreen' component={Pins} />
+        <Stack.Screen name='Compass' component={CompassPage} />
       </Stack.Navigator>
     </NavigationContainer>
   )

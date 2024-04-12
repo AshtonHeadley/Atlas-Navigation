@@ -51,7 +51,7 @@ const HomePage = ({navigation}) => {
                 try {
                   await signOut(PERSISTENT_AUTH)
                   console.log('signed out successfully')
-                  navigation.goBack()
+                  navigation.navigate('LoginScreen')
                 } catch (error) {
                   console.error('Error signing out:', error)
                   Alert.alert('An error occurred while signing out.')
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   Button: {
     width: '100%',
     height: screenHeight / 4.5,
-    borderRadius: 15,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: screenWidth / 20,

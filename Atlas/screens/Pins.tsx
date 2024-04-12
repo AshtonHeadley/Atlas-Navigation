@@ -39,6 +39,7 @@ import {FIREBASE_APP} from '../FirebaseConfig'
 import {remove} from '@firebase/database'
 
 const db = getFirestore(FIREBASE_APP)
+export let currentNavTarget = [0, 0]
 
 const getPinCollection = () => {
   const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase()) //reference to document in firebase
@@ -63,7 +64,7 @@ const deleteFunc = (
 ) => {
   const cardKey = card.title
   pinComponents.delete(cardKey) //remove card from map using unique key to find
-  deletePinComponent(card.title)
+  // deletePinComponent(card.title)
   setPinCardsCallback([...pinComponents.values()])
 }
 
@@ -74,6 +75,7 @@ const createPinCard = (
   specialNum: number,
   key: number,
   setPinCardsCallback: (newCards: any[]) => void,
+  onPressNav: () => void,
 ) => {
   const card = {
     //card data object
@@ -90,7 +92,77 @@ const createPinCard = (
     onPressDel: deleteFunc.bind(null, card, setPinCardsCallback),
   }
   //Create custom PinCard
-  return <PinCard text={card} onPressDel={func.onPressDel} key={key} />
+  return (
+    <PinCard
+      text={card}
+      onPressNav={onPressNav}
+      onPressDel={func.onPressDel}
+      key={key}
+    />
+  )
+}
+
+export const requestLocationPermissionAndroid = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Geolocation Permission',
+        message: 'Atlas needs access to your location',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    )
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Location permission granted')
+      return true
+    } else {
+      console.log('Location permission denied')
+      return false
+    }
+  } catch (err) {
+    console.warn(err)
+  }
+}
+// Function to get permission for ios
+export const requestLocationPermissionIOS = async () => {
+  const openSetting = () => {
+    Linking.openSettings().catch(() => {
+      Alert.alert('Unable to open settings')
+    })
+  }
+  const status = await GeoLocation.requestAuthorization('whenInUse')
+
+  if (status === 'granted') {
+    console.log('Location permission granted')
+    return true
+  }
+
+  if (status === 'denied') {
+    Alert.alert('Location permission denied')
+  }
+
+  if (status === 'disabled') {
+    Alert.alert(
+      `Turn on Location Services to allow "Atlas" to determine your location.`,
+      '',
+      [
+        {text: 'Go to Settings', onPress: openSetting},
+        {text: "Don't Use Location", onPress: () => {}},
+      ],
+    )
+  }
+
+  return false
+}
+// Request permission handler, checks running OS
+export const requestLocationPermission = async () => {
+  if (Platform.OS === 'android') {
+    return await requestLocationPermissionAndroid()
+  } else {
+    return await requestLocationPermissionIOS()
+  }
 }
 
 const Pins = ({navigation}) => {
@@ -100,25 +172,36 @@ const Pins = ({navigation}) => {
   const showOverlay = () => setIsOverlayVisible(true)
   const hideOverlay = () => setIsOverlayVisible(false)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedDocs = await loadPinComponents()
-      const updatedPinCards = fetchedDocs.map(doc => {
-        const pinCard = createPinCard(
-          doc.title,
-          doc.latitude,
-          doc.longitude,
-          doc.specialNum,
-          doc.key,
-          setPinCards,
-        )
-        pinComponents.set(doc.title, pinCard)
-        return pinCard
-      })
-      setPinCards(updatedPinCards)
-    }
-    fetchData()
-  }, [])
+  const onPressNav = ({latitude = 0, longitude = 0}) => {
+    const lat = latitude
+    const long = longitude
+    currentNavTarget = [latitude, longitude]
+    navigation.navigate('Compass')
+  }
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const fetchedDocs = await loadPinComponents()
+  //     const updatedPinCards = fetchedDocs.map(doc => {
+  //       const pinCard = createPinCard(
+  //         doc.title,
+  //         doc.latitude,
+  //         doc.longitude,
+  //         doc.specialNum,
+  //         doc.key,
+  //         setPinCards,
+  //         onPressNav.bind(null, {
+  //           latitude: doc.latitude,
+  //           longitude: doc.longitude,
+  //         }),
+  //       )
+  //       pinComponents.set(doc.title, pinCard)
+  //       return pinCard
+  //     })
+  //     setPinCards(updatedPinCards)
+  //   }
+  //   fetchData()
+  // }, [])
 
   const handleOverlaySubmit = async (title: any, description: any) => {
     await getLocation(title, description)
@@ -152,70 +235,6 @@ const Pins = ({navigation}) => {
     }
   }
 
-  // Function to get permission for location mainly for android
-  const requestLocationPermissionAndroid = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Geolocation Permission',
-          message: 'Atlas needs access to your location',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      )
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Location permission granted')
-        return true
-      } else {
-        console.log('Location permission denied')
-        return false
-      }
-    } catch (err) {
-      console.warn(err)
-    }
-  }
-  // Function to get permission for ios
-  const requestLocationPermissionIOS = async () => {
-    const openSetting = () => {
-      Linking.openSettings().catch(() => {
-        Alert.alert('Unable to open settings')
-      })
-    }
-    const status = await GeoLocation.requestAuthorization('whenInUse')
-
-    if (status === 'granted') {
-      console.log('Location permission granted')
-      return true
-    }
-
-    if (status === 'denied') {
-      Alert.alert('Location permission denied')
-    }
-
-    if (status === 'disabled') {
-      Alert.alert(
-        `Turn on Location Services to allow "Atlas" to determine your location.`,
-        '',
-        [
-          {text: 'Go to Settings', onPress: openSetting},
-          {text: "Don't Use Location", onPress: () => {}},
-        ],
-      )
-    }
-
-    return false
-  }
-  // Request permission handler, checks running OS
-  const requestLocationPermission = async () => {
-    if (Platform.OS === 'android') {
-      return await requestLocationPermissionAndroid()
-    } else {
-      return await requestLocationPermissionIOS()
-    }
-  }
-
   //Gets location and creates card to display
   const getLocation = async (inputTitle: string, desc: String) => {
     if (pinComponents.has(inputTitle)) {
@@ -237,11 +256,15 @@ const Pins = ({navigation}) => {
             specialNum,
             key,
             setPinCards,
+            onPressNav.bind(null, {
+              latitude: latitude,
+              longitude: longitude,
+            }),
           )
           pinComponents.set(inputTitle, pinCard)
           //update currently shown list
           setPinCards([...pinCards, pinCard])
-          await addPinToDB(inputTitle, latitude, longitude, specialNum, key)
+          //await addPinToDB(inputTitle, latitude, longitude, specialNum, key)
           setLoading(false)
         },
         error => {
@@ -318,7 +341,12 @@ const Pins = ({navigation}) => {
               navigation.navigate('HomeScreen')
             },
           }}
-          centerItem={friendsNavItem}
+          centerItem={{
+            ...friendsNavItem,
+            onPress: () => {
+              navigation.navigate('Compass')
+            },
+          }}
           rightItem={profileNavItem}></NavigationBar>
       </View>
     </View>
