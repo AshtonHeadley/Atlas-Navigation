@@ -31,6 +31,7 @@ import {
   getDocs,
   where,
 } from '@firebase/firestore'
+import FastImage from 'react-native-fast-image'
 
 const screenHeight = Dimensions.get('window').height
 
@@ -113,9 +114,9 @@ const CreateAccount = ({navigation}) => {
         <View style={{flex: 0.25}}>
           <TouchableOpacity
             onPress={() => {
-              navigation.goBack()
+              navigation.navigate('LoginScreen')
             }}>
-            <Image
+            <FastImage
               source={require('../assets/back_arrow.png')}
               style={{width: 40, height: 28}}
             />
@@ -203,10 +204,10 @@ const styles = StyleSheet.create({
   },
   TitleView: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'baseline',
     flexDirection: 'row',
-    padding: screenHeight / 24,
+    padding: screenHeight / 18,
   },
   title: {
     fontSize: screenHeight / 18,

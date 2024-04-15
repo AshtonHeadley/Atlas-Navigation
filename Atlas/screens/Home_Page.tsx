@@ -5,7 +5,6 @@ import {signOut} from '@firebase/auth'
 import {
   Alert,
   Dimensions,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,13 +12,8 @@ import {
 } from 'react-native'
 import {FIREBASE_APP, FIREBASE_AUTH, PERSISTENT_AUTH} from '../FirebaseConfig'
 import React from 'react'
-import {
-  collection,
-  doc,
-  getDocs,
-  getFirestore,
-  setDoc,
-} from '@firebase/firestore'
+import {getFirestore} from '@firebase/firestore'
+import FastImage from 'react-native-fast-image'
 
 export const screenWidth = Dimensions.get('window').width
 export const screenHeight = Dimensions.get('window').height
@@ -57,7 +51,7 @@ const HomePage = ({navigation}) => {
                   Alert.alert('An error occurred while signing out.')
                 }
               }}>
-              <Image
+              <FastImage
                 source={require('../assets/menu.png')}
                 style={{width: 40, height: 40}}
               />
@@ -81,7 +75,7 @@ const HomePage = ({navigation}) => {
               ...styles.Button,
               backgroundColor: colorTheme,
             }}>
-            <Image
+            <FastImage
               source={require('../assets/pin.png')}
               style={{width: 128, height: 128}}
             />
@@ -92,7 +86,7 @@ const HomePage = ({navigation}) => {
               ...styles.Button,
               backgroundColor: colorTheme,
             }}>
-            <Image
+            <FastImage
               source={require('../assets/multiple-users-silhouette.png')}
               style={{width: 128, height: 128}}
             />
@@ -103,7 +97,7 @@ const HomePage = ({navigation}) => {
               ...styles.Button,
               backgroundColor: colorTheme,
             }}>
-            <Image
+            <FastImage
               source={require('../assets/profile-user.png')}
               style={{width: 128, height: 128}}
             />
