@@ -30,7 +30,7 @@ const HomePage = ({navigation}) => {
   const auth = FIREBASE_AUTH
   return (
     //Screen with 3 buttons
-    <View style={{flex: 1, backgroundColor: 'white'}}>
+    <View style={{flex: 1, backgroundColor: '#132b33'}}>
       <View style={{flex: 1}}>
         <View
           style={{
@@ -117,6 +117,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
   },
+  SignOut: {
+    position: 'absolute',
+    bottom: -(screenHeight / 128),
+    left: 0,
+    right: 0,
+    marginLeft: screenWidth / 1.25,
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
   TitleText: {
     position: 'absolute',
     top: -(screenHeight / 18),
@@ -129,17 +138,23 @@ const styles = StyleSheet.create({
     fontSize: screenHeight / 14,
     fontWeight: 'bold',
     color: colorTheme,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
   },
-  SignOut: {
-    position: 'absolute',
-    bottom: -(screenHeight / 128),
-    left: 0,
-    right: 0,
-    marginLeft: screenWidth / 1.25,
-    justifyContent: 'center',
-    alignContent: 'center',
-  },
+
   Button: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.5,
     width: '100%',
     height: screenHeight / 4.5,
     borderRadius: 5,

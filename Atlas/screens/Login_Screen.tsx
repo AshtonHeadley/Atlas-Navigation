@@ -19,7 +19,6 @@ const screenHeight = Dimensions.get('window').height
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  let isLoggedIn = false
   const [loading, setLoading] = useState(false)
   const auth = FIREBASE_AUTH
 

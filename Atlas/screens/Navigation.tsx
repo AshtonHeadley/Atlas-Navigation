@@ -109,7 +109,7 @@ const CompassPage = ({navigation}) => {
   }, [azimuth, heading])
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: '#132b33'}}>
       <View style={{flex: 1}}></View>
       <View
         style={{
@@ -141,14 +141,14 @@ const CompassPage = ({navigation}) => {
             alignItems: 'center',
           }}>
           <View>
-            <Text style={styles.Text}>{distance} m</Text>
+            <Text style={{...styles.Text, ...styles.Shadow}}>{distance} m</Text>
           </View>
         </View>
       </View>
       <View style={{flex: 4}}>
         <View style={styles.container}>
           <Animated.Image
-            source={require('../assets/nav_arrow2.png')}
+            source={require('../assets/navigation.png')}
             style={[
               styles.image,
               {
@@ -173,11 +173,12 @@ const CompassPage = ({navigation}) => {
           style={{
             ...styles.Button,
             backgroundColor: colorTheme,
+            ...styles.Shadow,
           }}>
           <Text
             style={{
               fontSize: screenWidth / 20,
-              fontWeight: 'bold',
+              // fontWeight: 'bold',
               color: 'white',
             }}>
             Back
@@ -195,8 +196,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: 200,
-    height: 200,
+    padding: 100,
+    width: 125,
+    height: 125,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.5,
   },
   Button: {
     width: '100%',
@@ -215,7 +224,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: screenWidth / 10,
     fontWeight: 'bold',
-    color: colorTheme,
+    color: '#66a7bb',
   },
   Text: {
     justifyContent: 'center',
@@ -223,6 +232,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: screenWidth / 20,
     fontWeight: 'bold',
+    color: 'white',
+  },
+  Shadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 6,
+      height: 8,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.5,
   },
 })
 

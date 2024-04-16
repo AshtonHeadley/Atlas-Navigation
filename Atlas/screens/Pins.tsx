@@ -205,7 +205,7 @@ const Pins = ({navigation}) => {
       await addPinToDB(inputTitle, latitude, longitude, specialNum, key)
     }
     pinComponents.set(inputTitle, pinCard)
-    setPinCards([...pinCards, pinCard])
+    setPinCards([...pinComponents.values()])
   }
 
   useEffect(() => {
@@ -279,7 +279,7 @@ const Pins = ({navigation}) => {
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: 'white'}}>
+    <View style={{flex: 1, backgroundColor: '#132b33'}}>
       <PinOverlayInput //Overlay to input info when adding pin, custom component
         isVisible={isOverlayVisible}
         onCancel={hideOverlay}
@@ -324,13 +324,18 @@ const Pins = ({navigation}) => {
       <View
         style={{flex: 4, marginVertical: 10}} //list of pin cards
       >
-        <View style={{marginHorizontal: screenWidth / 28}}>
-          <View style={{flex: 1}}></View>
-          <ScrollView contentContainerStyle={{flexGrow: 1}}>
-            {pinCards.map(item => {
-              //maps pin cards to scrollview
-              return item
-            })}
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              // justifyContent: 'center',
+              // alignItems: 'center',
+            }}>
+            {pinCards.map(item => (
+              <View key={item.key} style={{alignSelf: 'center'}}>
+                {item}
+              </View>
+            ))}
           </ScrollView>
         </View>
       </View>
@@ -350,9 +355,6 @@ const Pins = ({navigation}) => {
           }}
           centerItem={{
             ...friendsNavItem,
-            onPress: () => {
-              navigation.navigate('Compass')
-            },
           }}
           rightItem={profileNavItem}></NavigationBar>
       </View>
@@ -368,6 +370,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 4,
+    //   height: 6,
+    // },
+    // shadowOpacity: 0.5,
+    // shadowRadius: 3.5,
   },
   TitleText: {
     position: 'absolute',

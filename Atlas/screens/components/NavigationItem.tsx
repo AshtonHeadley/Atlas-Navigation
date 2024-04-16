@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: screenHeight / 46,
-    color: 'black',
+    color: 'white',
   },
 })
 
