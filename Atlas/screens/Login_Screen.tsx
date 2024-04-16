@@ -76,8 +76,8 @@ const LoginScreen = ({navigation}) => {
       {/* Forget password button */}
       <TouchableOpacity
         onPress={() => {
-          setEmail('ngub24@gmail.com')
-          setPassword('password')
+          // setEmail('ngub24@gmail.com')
+          // setPassword('password')
         }}>
         <Text style={styles.forgotPassword}>Forget password?</Text>
       </TouchableOpacity>
@@ -95,17 +95,6 @@ const LoginScreen = ({navigation}) => {
           </TouchableOpacity>
         </>
       )}
-      {/* Social login container */}
-      <View style={styles.socialLoginContainer}>
-        <TouchableOpacity style={styles.socialLoginButton}>
-          <Image
-            source={{
-              uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png',
-            }}
-            style={{width: screenHeight / 20, height: screenHeight / 20}}
-          />
-        </TouchableOpacity>
-      </View>
       {/* Create account button */}
       <TouchableOpacity
         onPress={() => {

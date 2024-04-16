@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {StyleSheet, View, TouchableOpacity, Animated, Text} from 'react-native'
-import {colorTheme, screenHeight} from '../Home_Page'
+import {colorTheme, screenHeight, screenWidth} from '../Home_Page'
 
 const ExpandableView = ({
   expanded,
@@ -14,31 +14,33 @@ const ExpandableView = ({
   useEffect(() => {
     Animated.timing(height, {
       toValue: !expanded ? screenHeight / 12 : 0,
-      duration: 10,
+      duration: 150,
       useNativeDriver: false,
     }).start()
   }, [expanded, height])
 
-  return (
+  return expanded ? (
+    <View />
+  ) : (
     <Animated.View
       style={{
         height,
         borderBottomRightRadius: 5,
         borderBottomLeftRadius: 5,
-        backgroundColor: colorTheme,
+        backgroundColor: '#2d6677',
         marginBottom: 7.5,
+        width: screenWidth / 1.25,
+        alignSelf: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 4,
+          height: 8,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.5,
       }}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignContent: 'center',
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-          }}>
+      <View style={{flex: 1, justifyContent: 'center', alignContent: 'center'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
           <TouchableOpacity onPress={onPressDel} style={styles.button}>
             <Text style={styles.SubTitleText}>Delete</Text>
           </TouchableOpacity>

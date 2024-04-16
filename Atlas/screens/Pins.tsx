@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, Suspense} from 'react'
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Linking,
   PermissionsAndroid,
   Platform,
@@ -36,10 +35,11 @@ import {
   deleteDoc,
 } from '@firebase/firestore'
 import {FIREBASE_APP} from '../FirebaseConfig'
-import {remove} from '@firebase/database'
+import FastImage from 'react-native-fast-image'
 
 const db = getFirestore(FIREBASE_APP)
 export let currentNavTarget = [0, 0]
+export let currentNavTitle = ''
 
 const getPinCollection = () => {
   const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase()) //reference to document in firebase
@@ -64,7 +64,7 @@ const deleteFunc = (
 ) => {
   const cardKey = card.title
   pinComponents.delete(cardKey) //remove card from map using unique key to find
-  // deletePinComponent(card.title)
+  deletePinComponent(card.title)
   setPinCardsCallback([...pinComponents.values()])
 }
 
@@ -172,36 +172,56 @@ const Pins = ({navigation}) => {
   const showOverlay = () => setIsOverlayVisible(true)
   const hideOverlay = () => setIsOverlayVisible(false)
 
-  const onPressNav = ({latitude = 0, longitude = 0}) => {
+  const onPressNav = ({title = '', latitude = 0, longitude = 0}) => {
     const lat = latitude
     const long = longitude
     currentNavTarget = [latitude, longitude]
+    currentNavTitle = title
     navigation.navigate('Compass')
   }
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const fetchedDocs = await loadPinComponents()
-  //     const updatedPinCards = fetchedDocs.map(doc => {
-  //       const pinCard = createPinCard(
-  //         doc.title,
-  //         doc.latitude,
-  //         doc.longitude,
-  //         doc.specialNum,
-  //         doc.key,
-  //         setPinCards,
-  //         onPressNav.bind(null, {
-  //           latitude: doc.latitude,
-  //           longitude: doc.longitude,
-  //         }),
-  //       )
-  //       pinComponents.set(doc.title, pinCard)
-  //       return pinCard
-  //     })
-  //     setPinCards(updatedPinCards)
-  //   }
-  //   fetchData()
-  // }, [])
+  const handleCreatePin = async (
+    latitude: number,
+    longitude: number,
+    inputTitle: string,
+    newPin = true,
+  ) => {
+    const specialNum = Math.random()
+    const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
+    const pinCard = createPinCard(
+      inputTitle,
+      latitude,
+      longitude,
+      specialNum,
+      key,
+      setPinCards,
+      onPressNav.bind(null, {
+        title: inputTitle,
+        latitude: latitude,
+        longitude: longitude,
+      }),
+    )
+    if (newPin) {
+      await addPinToDB(inputTitle, latitude, longitude, specialNum, key)
+    }
+    pinComponents.set(inputTitle, pinCard)
+    setPinCards([...pinComponents.values()])
+  }
+
+  useEffect(() => {
+    const loadPins = async () => {
+      try {
+        const pins = await loadPinComponents() // Call loadPinComponents
+        pins.forEach(pin => {
+          handleCreatePin(pin.latitude, pin.longitude, pin.title, false)
+        })
+      } catch (e) {
+        console.error('Error loading pins:', e)
+      }
+    }
+    loadPins()
+    return
+  }, [])
 
   const handleOverlaySubmit = async (title: any, description: any) => {
     await getLocation(title, description)
@@ -247,24 +267,7 @@ const Pins = ({navigation}) => {
       GeoLocation.getCurrentPosition(
         async position => {
           const {latitude, longitude} = position.coords //output of get CurrentPosition
-          const specialNum = Math.random()
-          const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
-          const pinCard = createPinCard(
-            inputTitle,
-            latitude,
-            longitude,
-            specialNum,
-            key,
-            setPinCards,
-            onPressNav.bind(null, {
-              latitude: latitude,
-              longitude: longitude,
-            }),
-          )
-          pinComponents.set(inputTitle, pinCard)
-          //update currently shown list
-          setPinCards([...pinCards, pinCard])
-          //await addPinToDB(inputTitle, latitude, longitude, specialNum, key)
+          handleCreatePin(latitude, longitude, inputTitle)
           setLoading(false)
         },
         error => {
@@ -274,8 +277,9 @@ const Pins = ({navigation}) => {
       )
     }
   }
+
   return (
-    <View style={{flex: 1, backgroundColor: 'white'}}>
+    <View style={{flex: 1, backgroundColor: '#132b33'}}>
       <PinOverlayInput //Overlay to input info when adding pin, custom component
         isVisible={isOverlayVisible}
         onCancel={hideOverlay}
@@ -283,7 +287,7 @@ const Pins = ({navigation}) => {
       />
       <View //top section, title and add pin button
         style={{
-          flex: 1.75,
+          flex: 1.6,
           marginHorizontal: screenWidth / 12,
         }}>
         <View style={{flex: 1, justifyContent: 'flex-end'}}>
@@ -308,7 +312,7 @@ const Pins = ({navigation}) => {
                   ...styles.Button,
                   backgroundColor: colorTheme,
                 }}>
-                <Image
+                <FastImage
                   source={require('../assets/add.png')}
                   style={{width: 32, height: 32}}
                 />
@@ -318,15 +322,20 @@ const Pins = ({navigation}) => {
         </View>
       </View>
       <View
-        style={{flex: 4.5, marginVertical: 10}} //list of pin cards
+        style={{flex: 4, marginVertical: 10}} //list of pin cards
       >
-        <View style={{marginHorizontal: screenWidth / 28}}>
-          <View style={{flex: 1}}></View>
-          <ScrollView contentContainerStyle={{flexGrow: 1}}>
-            {pinCards.map(item => {
-              //maps pin cards to scrollview
-              return item
-            })}
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              // justifyContent: 'center',
+              // alignItems: 'center',
+            }}>
+            {pinCards.map(item => (
+              <View key={item.key} style={{alignSelf: 'center'}}>
+                {item}
+              </View>
+            ))}
           </ScrollView>
         </View>
       </View>
@@ -338,14 +347,14 @@ const Pins = ({navigation}) => {
           leftItem={{
             ...homeNavItem,
             onPress: () => {
+              console.log('here')
+              pinComponents.clear()
+              setPinCards([...pinComponents.values()])
               navigation.navigate('HomeScreen')
             },
           }}
           centerItem={{
             ...friendsNavItem,
-            onPress: () => {
-              navigation.navigate('Compass')
-            },
           }}
           rightItem={profileNavItem}></NavigationBar>
       </View>
@@ -361,6 +370,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 4,
+    //   height: 6,
+    // },
+    // shadowOpacity: 0.5,
+    // shadowRadius: 3.5,
   },
   TitleText: {
     position: 'absolute',
