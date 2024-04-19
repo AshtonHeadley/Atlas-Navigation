@@ -1,10 +1,10 @@
 import React, {lazy, useEffect, useState} from 'react'
 import {NavigationContainer} from '@react-navigation/native'
 import {createNativeStackNavigator} from '@react-navigation/native-stack'
-import LoginScreen from './screens/Login_Screen'
-import CompassPage from './screens/Navigation'
-import Pins from './screens/LazyPins'
-import Home from './screens/LazyHome'
+import LoginScreen from './Screens/Login_Screen'
+import CompassPage from './Screens/Navigation'
+import Pins from './Screens/LazyPins'
+import Home from './Screens/LazyHome'
 import {PERSISTENT_AUTH} from './FirebaseConfig'
 
 const Stack = createNativeStackNavigator()
@@ -27,7 +27,7 @@ const Main = () => {
         )}
         <Stack.Screen
           name='CreateAccount'
-          component={lazy(() => import('./screens/CreateAccount_screen'))}
+          component={lazy(() => import('./Screens/CreateAccount_screen'))}
         />
         <Stack.Screen name='PinScreen' component={Pins} />
         <Stack.Screen name='Compass' component={CompassPage} />
