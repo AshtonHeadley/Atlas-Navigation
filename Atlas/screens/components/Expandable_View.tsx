@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from 'react'
 import {StyleSheet, View, TouchableOpacity, Animated, Text} from 'react-native'
-import {colorTheme, screenHeight, screenWidth} from '../Home_Page'
+import {screenHeight, screenWidth} from '../Home_Page'
+import {themeColor} from '../../default-styles'
 
 const ExpandableView = ({
   expanded,
   onPressNav = () => {},
   onPressDel = () => {},
+  onPressAdd = () => {},
+  addPin = false,
   coordinates = {lat: 0, long: 0},
 }) => {
   const {lat, long} = coordinates
@@ -41,12 +44,20 @@ const ExpandableView = ({
       }}>
       <View style={{flex: 1, justifyContent: 'center', alignContent: 'center'}}>
         <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-          <TouchableOpacity onPress={onPressDel} style={styles.button}>
-            <Text style={styles.SubTitleText}>Delete</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onPressNav} style={styles.button}>
-            <Text style={styles.SubTitleText}>Navigate</Text>
-          </TouchableOpacity>
+          {addPin ? (
+            <TouchableOpacity onPress={onPressAdd} style={styles.button}>
+              <Text style={styles.SubTitleText}>Add</Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <TouchableOpacity onPress={onPressDel} style={styles.button}>
+                <Text style={styles.SubTitleText}>Delete</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={onPressNav} style={styles.button}>
+                <Text style={styles.SubTitleText}>Navigate</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </View>
     </Animated.View>
@@ -58,10 +69,10 @@ const styles = StyleSheet.create({
     fontSize: screenHeight / 30,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: colorTheme,
+    color: themeColor,
   },
   button: {
-    padding: 10,
+    padding: 15,
     marginHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',

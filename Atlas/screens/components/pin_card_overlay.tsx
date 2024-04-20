@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {
   Modal,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableHighlight,
@@ -9,7 +10,7 @@ import {
 } from 'react-native'
 import {screenHeight} from '../Home_Page'
 import {Alert} from 'react-native'
-import {themeColor} from '../../default-styles'
+import {backGroundColor, themeColor} from '../../default-styles'
 
 const PinOverlayInput = ({
   isVisible = false,
@@ -19,6 +20,8 @@ const PinOverlayInput = ({
 }) => {
   const [title, setTitle] = useState('')
   const [isPress, setIsPress] = useState(false)
+  const [isEnabled, setIsEnabled] = useState(false)
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState)
 
   const touchProps = {
     activeOpacity: 1,
@@ -38,7 +41,7 @@ const PinOverlayInput = ({
       Alert.alert('Enter a title')
       return
     }
-    onSubmit(title, coordinates)
+    onSubmit(title, coordinates, isEnabled)
     setTitle('')
   }
   return (
@@ -70,6 +73,23 @@ const PinOverlayInput = ({
             onChangeText={text => setTitle(text)}
             style={styles.input}
           />
+          <View
+            style={{
+              flexDirection: 'row',
+            }}>
+            <View style={{justifyContent: 'center', marginRight: 8}}>
+              <Text style={{color: '#f4f3f4', fontWeight: 'bold'}}>
+                Publish Pin?
+              </Text>
+            </View>
+            <Switch
+              trackColor={{false: backGroundColor, true: backGroundColor}}
+              thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
+              onValueChange={toggleSwitch}
+              value={isEnabled}
+            />
+          </View>
+
           <View
             style={{
               flexDirection: 'row',

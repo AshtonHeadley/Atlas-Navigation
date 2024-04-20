@@ -4,7 +4,13 @@ import {useState} from 'react'
 import ExpandableView from './Expandable_View'
 import {themeColor} from '../../default-styles'
 
-const PinCard = ({text, onPressDel, onPressNav}) => {
+const PinCard = ({
+  text,
+  onPressDel = () => {},
+  onPressNav = () => {},
+  onPressAdd = () => {},
+  addPin = false,
+}) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const {title, coordinates} = text
   const [bottomWidth, setBottomWidth] = useState(3)
@@ -42,6 +48,8 @@ const PinCard = ({text, onPressDel, onPressNav}) => {
           onPressDel={onPressDel}
           onPressNav={onPressNav}
           coordinates={coordinates}
+          addPin={addPin}
+          onPressAdd={onPressAdd}
         />
       </TouchableOpacity>
     </View>
