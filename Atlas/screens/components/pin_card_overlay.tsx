@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import {
   Button,
   Modal,
@@ -8,9 +8,14 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
-} from 'react-native'
-import {colorTheme, screenHeight} from '../Home_Page'
-import {Alert} from 'react-native'
+} from 'react-native';
+import {colorTheme, screenHeight} from '../Home_Page';
+import {Alert} from 'react-native';
+import {
+  launchImageLibrary,
+  launchCamera,
+  ImageLibraryOptions
+} from 'react-native-image-picker';
 
 const PinOverlayInput = ({
   isVisible = false,
@@ -18,9 +23,10 @@ const PinOverlayInput = ({
   onSubmit,
   coordinates = [],
 }) => {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [isPress, setIsPress] = useState(false)
+  const [title, setTitle] = useState('');
+  // const [description, setDescription] = useState('')
+  const [image, setImage] = useState('');
+  const [isPress, setIsPress] = useState(false);
 
   const touchProps = {
     activeOpacity: 1,
@@ -29,24 +35,64 @@ const PinOverlayInput = ({
     onHideUnderlay: () => setIsPress(false),
     onShowUnderlay: () => setIsPress(true),
     onPress: () => console.log('HELLO'), // <-- "onPress" is apparently required
-  }
+  };
 
   const handleCancel = () => {
-    setTitle('')
-    setDescription('')
-    onCancel()
-  }
+    setTitle('');
+
+    setImage('');
+    onCancel();
+  };
   const handleSubmit = () => {
     if (title === '') {
-      Alert.alert('Enter a title')
-      return
+      Alert.alert('Enter a title');
+      return;
     }
-    onSubmit(title, description, coordinates)
-    setTitle('')
-    setDescription('')
+    onSubmit(title, image, coordinates);
+    setTitle('');
+    setImage('');
+  };
+
+  const imgOptions: ImageLibraryOptions = {
+    mediaType: 'photo',
+    includeBase64: false,
+  };
+
+
+
+  const handleImage = () => {
+    // Prompt user to choose between gallery and camera
+    Alert.alert(
+      'Add Image',
+      'Choose an option',
+      [
+        {text: 'Take Photo', onPress: () => launchCamera(imgOptions, handleImageSelection)},
+        {text: 'Choose from Gallery', onPress: () => launchImageLibrary(imgOptions, handleImageSelection)},
+        {text: 'Cancel', style: 'cancel'},
+      ],
+      {cancelable: true},
+    );
   }
+
+  interface ImagePickerResponse {
+    didCancel?: boolean;
+    error?: string;
+    uri?: string;
+   }
+
+  const handleImageSelection = (response: ImagePickerResponse) => {
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.error) {
+      console.log('ImagePicker Error: ', response.error);
+    } else if (response.uri) {
+      setImage(response.uri);
+   } else {
+      console.log('No URI provided');
+   }
+ };
   return (
-    <Modal transparent={false} visible={isVisible} animationType='slide'>
+    <Modal transparent={false} visible={isVisible} animationType="slide">
       <View
         style={{
           flex: 1,
@@ -70,19 +116,20 @@ const PinOverlayInput = ({
           <Text style={styles.title}>Create Pin</Text>
           <TextInput
             placeholderTextColor={'grey'}
-            placeholder='Title'
+            placeholder="Title"
             value={title}
             onChangeText={text => setTitle(text)}
             style={styles.input}
           />
-          <TextInput
+          {/* <TextInput
             placeholderTextColor={'grey'}
             multiline={true}
             placeholder='Description'
             value={description}
             onChangeText={text => setDescription(text)}
             style={styles.descInput}
-          />
+          /> */}
+          <Button title="Add Image" onPress={handleImage} />
           <View
             style={{
               flexDirection: 'row',
@@ -109,8 +156,8 @@ const PinOverlayInput = ({
         </View>
       </View>
     </Modal>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   title: {
@@ -158,6 +205,6 @@ const styles = StyleSheet.create({
     height: 30,
     width: 100,
   },
-})
+});
 
-export default PinOverlayInput
+export default PinOverlayInput;
