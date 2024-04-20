@@ -1,16 +1,15 @@
 import React, {useState} from 'react'
 import {
-  Button,
   Modal,
   StyleSheet,
   Text,
   TextInput,
   TouchableHighlight,
-  TouchableOpacity,
   View,
 } from 'react-native'
-import {colorTheme, screenHeight} from '../Home_Page'
+import {screenHeight} from '../Home_Page'
 import {Alert} from 'react-native'
+import {themeColor} from '../../default-styles'
 
 const PinOverlayInput = ({
   isVisible = false,
@@ -19,7 +18,6 @@ const PinOverlayInput = ({
   coordinates = [],
 }) => {
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
   const [isPress, setIsPress] = useState(false)
 
   const touchProps = {
@@ -33,7 +31,6 @@ const PinOverlayInput = ({
 
   const handleCancel = () => {
     setTitle('')
-    setDescription('')
     onCancel()
   }
   const handleSubmit = () => {
@@ -41,27 +38,25 @@ const PinOverlayInput = ({
       Alert.alert('Enter a title')
       return
     }
-    onSubmit(title, description, coordinates)
+    onSubmit(title, coordinates)
     setTitle('')
-    setDescription('')
   }
   return (
-    <Modal transparent={false} visible={isVisible} animationType='slide'>
+    <Modal transparent={true} visible={isVisible} animationType='fade'>
       <View
         style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
           flex: 1,
-          backgroundColor: 'black',
-          opacity: 0.8,
           justifyContent: 'center',
           alignItems: 'center',
           padding: 20,
         }}>
         <View
           style={{
-            height: '50%',
+            height: '30%',
             width: '90%',
             position: 'absolute',
-            backgroundColor: 'white',
+            backgroundColor: themeColor,
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
@@ -69,19 +64,11 @@ const PinOverlayInput = ({
           }}>
           <Text style={styles.title}>Create Pin</Text>
           <TextInput
-            placeholderTextColor={'grey'}
+            placeholderTextColor={'white'}
             placeholder='Title'
             value={title}
             onChangeText={text => setTitle(text)}
             style={styles.input}
-          />
-          <TextInput
-            placeholderTextColor={'grey'}
-            multiline={true}
-            placeholder='Description'
-            value={description}
-            onChangeText={text => setDescription(text)}
-            style={styles.descInput}
           />
           <View
             style={{
@@ -96,7 +83,7 @@ const PinOverlayInput = ({
               <Text style={{fontWeight: 'bold'}}>Cancel</Text>
             </TouchableHighlight>
             <TouchableHighlight
-              {...{...touchProps, underlayColor: colorTheme}}
+              {...{...touchProps, underlayColor: 'lime'}}
               style={{
                 ...styles.button,
                 borderWidth: 2,
@@ -117,7 +104,7 @@ const styles = StyleSheet.create({
     fontSize: screenHeight / 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: colorTheme,
+    color: 'white',
   },
   input: {
     width: '80%',

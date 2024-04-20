@@ -18,7 +18,6 @@ import NavigationBar, {
 } from './components/NavigationBar'
 import {
   GLOBAL_EMAIL,
-  colorTheme,
   pinComponents,
   screenHeight,
   screenWidth,
@@ -36,6 +35,7 @@ import {
 } from '@firebase/firestore'
 import {FIREBASE_APP} from '../FirebaseConfig'
 import FastImage from 'react-native-fast-image'
+import {backGroundColor, themeColor} from '../default-styles'
 
 const db = getFirestore(FIREBASE_APP)
 export let currentNavTarget = [0, 0]
@@ -207,7 +207,6 @@ const Pins = ({navigation}) => {
     pinComponents.set(inputTitle, pinCard)
     setPinCards([...pinComponents.values()])
   }
-
   useEffect(() => {
     const loadPins = async () => {
       try {
@@ -279,7 +278,7 @@ const Pins = ({navigation}) => {
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: '#132b33'}}>
+    <View style={{flex: 1, backgroundColor: backGroundColor}}>
       <PinOverlayInput //Overlay to input info when adding pin, custom component
         isVisible={isOverlayVisible}
         onCancel={hideOverlay}
@@ -287,38 +286,50 @@ const Pins = ({navigation}) => {
       />
       <View //top section, title and add pin button
         style={{
-          flex: 1.6,
-          marginHorizontal: screenWidth / 12,
+          flex: 1.7,
+          justifyContent: 'flex-end',
         }}>
-        <View style={{flex: 1, justifyContent: 'flex-end'}}>
-          <Text //title
-            style={styles.TitleText}>
-            Pins
-          </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View>
+            <Text style={styles.TitleText}>Pins</Text>
+          </View>
+          <View style={styles.ImageView}></View>
         </View>
-        <View //add pin button
-          style={{flex: 0, justifyContent: 'flex-end'}}>
-          {loading ? (
-            <View style={{height: screenHeight / 11}}>
-              <ActivityIndicator size={'large'} color='grey' />
-            </View>
-          ) : (
-            <>
-              <TouchableOpacity
-                onPress={async () => {
-                  showOverlay()
-                }}
-                style={{
-                  ...styles.Button,
-                  backgroundColor: colorTheme,
-                }}>
-                <FastImage
-                  source={require('../assets/add.png')}
-                  style={{width: 32, height: 32}}
-                />
-              </TouchableOpacity>
-            </>
-          )}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View //add pin button
+            style={{flex: 1, marginHorizontal: screenWidth / 12}}>
+            {loading ? (
+              <View style={{height: screenHeight / 11}}>
+                <ActivityIndicator size={'large'} color='grey' />
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={async () => {
+                    showOverlay()
+                  }}
+                  style={{
+                    ...styles.Button,
+                    backgroundColor: themeColor,
+                  }}>
+                  <FastImage
+                    source={require('../assets/add.png')}
+                    style={{width: 32, height: 32}}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         </View>
       </View>
       <View
@@ -370,25 +381,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    // shadowColor: '#000',
-    // shadowOffset: {
-    //   width: 4,
-    //   height: 6,
-    // },
-    // shadowOpacity: 0.5,
-    // shadowRadius: 3.5,
   },
   TitleText: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
-    alignContent: 'center',
-    marginLeft: screenWidth / 4,
-    flex: 1,
     fontSize: screenHeight / 14,
     fontWeight: 'bold',
-    color: colorTheme,
+    color: themeColor,
+  },
+  ImageView: {
+    backgroundColor: themeColor,
+    height: screenHeight / 8,
+    borderRadius: 5,
   },
 })
 

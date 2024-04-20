@@ -1,7 +1,7 @@
 import React, {lazy, Suspense} from 'react'
 import {ActivityIndicator, View, StyleSheet} from 'react-native'
 
-const Home = lazy(() => import('./Home_Page'))
+const Home = lazy(() => import('../Home_Page'))
 
 const LazyHome = props => {
   return (
