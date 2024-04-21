@@ -10,6 +10,7 @@ const PinCard = ({
   onPressNav = () => {},
   onPressAdd = () => {},
   addPin = false,
+  creator = '',
 }) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const {title, coordinates} = text
@@ -40,7 +41,10 @@ const PinCard = ({
             borderBottomLeftRadius: radius,
             marginVertical: vertMargin,
           }}>
-          <Text style={styles.TitleText}>{title}</Text>
+          <View style={{flex: 2}}>
+            <Text style={styles.TitleText}>{title}</Text>
+            <Text style={styles.SubTitleText}>{creator}</Text>
+          </View>
           <View style={styles.ImageView}></View>
         </View>
         <ExpandableView
@@ -75,12 +79,14 @@ const styles = StyleSheet.create({
     shadowRadius: 3.5,
   },
   TitleText: {
+    marginRight: 10,
     paddingTop: screenHeight / 32,
-    paddingLeft: 10,
-    flex: 2,
-    fontSize: screenHeight / 32,
+    paddingLeft: 8,
+    fontSize: screenHeight / 36,
     fontWeight: 'bold',
     color: 'white',
+    justifyContent: 'center',
+    alignContent: 'center',
   },
   ImageView: {
     backgroundColor: themeColor,
@@ -89,8 +95,8 @@ const styles = StyleSheet.create({
     flex: 1.25,
   },
   SubTitleText: {
-    justifyContent: 'center',
-    alignContent: 'center',
+    marginRight: 10,
+    paddingLeft: 10,
     flex: 1,
     fontSize: screenHeight / 48,
     // fontWeight: 'bold',

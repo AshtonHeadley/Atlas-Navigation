@@ -17,7 +17,9 @@ import NavigationBar, {
   profileNavItem,
 } from './components/NavigationBar'
 import {
+  GET_USERNAME,
   GLOBAL_EMAIL,
+  GLOBAL_USERNAME,
   pinComponents,
   screenHeight,
   screenWidth,
@@ -32,6 +34,7 @@ import {
   getFirestore,
   getDocs,
   deleteDoc,
+  getDoc,
 } from '@firebase/firestore'
 import {FIREBASE_APP} from '../FirebaseConfig'
 import FastImage from 'react-native-fast-image'
@@ -91,10 +94,10 @@ export const createPinCard = (
   key: number,
   setPinCardsCallback: (newCards: any[]) => void,
   onPressNav: () => void,
-  published: boolean,
+  user: string,
+  published = false,
   addPin = false,
 ) => {
-  // console.log(addPin)
   const card = {
     //card data object
     title: `${inputTitle}`,
@@ -105,6 +108,7 @@ export const createPinCard = (
       specialNum: specialNum,
     },
     published: published,
+    user: user,
   }
   //function passed into every card's delete button
   const func = {
@@ -122,6 +126,7 @@ export const createPinCard = (
       key={key}
       addPin={addPin}
       onPressAdd={func2.onPressAdd}
+      creator={user}
     />
   )
 }
@@ -212,7 +217,8 @@ const Pins = ({navigation}) => {
     latitude: number,
     longitude: number,
     inputTitle: string,
-    isPublished: boolean,
+    isPublished = false,
+    user: string,
     newPin = true,
     addPin = false,
   ) => {
@@ -230,6 +236,7 @@ const Pins = ({navigation}) => {
         latitude: latitude,
         longitude: longitude,
       }),
+      user,
       isPublished,
       addPin,
     )
@@ -256,7 +263,8 @@ const Pins = ({navigation}) => {
               pin.latitude,
               pin.longitude,
               pin.title,
-              false,
+              pin.published,
+              pin.user,
               false,
             )
           })
@@ -274,7 +282,7 @@ const Pins = ({navigation}) => {
     description: any,
     isEnabled: boolean,
   ) => {
-    await getLocation(title, description, isEnabled)
+    await getLocation(title, isEnabled)
     hideOverlay()
   }
 
@@ -296,7 +304,7 @@ const Pins = ({navigation}) => {
       longitude: longitude,
       specialNum: specialNum,
       key: key,
-      user: GLOBAL_EMAIL,
+      user: GLOBAL_USERNAME,
       published,
     }
     try {
@@ -324,11 +332,7 @@ const Pins = ({navigation}) => {
   }
 
   //Gets location and creates card to display
-  const getLocation = async (
-    inputTitle: string,
-    desc: String,
-    isEnabled: boolean,
-  ) => {
+  const getLocation = async (inputTitle: string, isEnabled: boolean) => {
     if (pinComponents.has(inputTitle)) {
       Alert.alert('Pin with that title already exists')
       return
@@ -339,7 +343,14 @@ const Pins = ({navigation}) => {
       GeoLocation.getCurrentPosition(
         async position => {
           const {latitude, longitude} = position.coords //output of get CurrentPosition
-          handleCreatePin(latitude, longitude, inputTitle, isEnabled, true)
+          handleCreatePin(
+            latitude,
+            longitude,
+            inputTitle,
+            isEnabled,
+            GLOBAL_USERNAME,
+            true,
+          )
           setLoading(false)
         },
         error => {
@@ -446,7 +457,6 @@ const Pins = ({navigation}) => {
           leftItem={{
             ...homeNavItem,
             onPress: () => {
-              console.log('here')
               pinComponents.clear()
               setPinCards([...pinComponents.values()])
               navigation.navigate('HomeScreen')

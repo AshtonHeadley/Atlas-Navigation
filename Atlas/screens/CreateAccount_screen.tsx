@@ -96,7 +96,7 @@ const CreateAccount = ({navigation}) => {
       Alert.alert('Check your email')
       //add user's data to DB
       await addUserData(name, email)
-      navigation.navigate('Login')
+      navigation.navigate('LoginScreen')
     } catch (error) {
       console.log(email)
       Alert.alert(

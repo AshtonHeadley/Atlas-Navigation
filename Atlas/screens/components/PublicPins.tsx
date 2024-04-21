@@ -18,12 +18,15 @@ import {FIREBASE_APP} from '../../FirebaseConfig'
 const PublicPins = ({isVisible = false, onSubmit}) => {
   const db = getFirestore(FIREBASE_APP)
   const [pinCards, setPinCards] = useState([] as any)
+  const [searchVal, setSearchVal] = useState('')
+  const [renderList, setRenderList] = useState([] as any)
   const pinList = [] as any
 
   const handleCreatePin = async (
     latitude: number,
     longitude: number,
     inputTitle: string,
+    user: string,
   ) => {
     const specialNum = Math.random()
     const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
@@ -35,6 +38,7 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
       key,
       setPinCards,
       () => {},
+      user,
       true,
       true,
     )
@@ -49,16 +53,24 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
             await getDocs(collection(db, 'PublicPins'))
           ).docs.map(doc => doc.data()) // Call loadPinComponents
           pins.forEach(async pin => {
-            await handleCreatePin(pin.latitude, pin.longitude, pin.title)
+            await handleCreatePin(
+              pin.latitude,
+              pin.longitude,
+              pin.title,
+              pin.user,
+            )
             setPinCards([...pinList])
+            setRenderList([...pinList])
           })
         } catch (e) {
           console.error('Error loading pins:', e)
         }
       }
       loadPins()
+
       return
     } else {
+      setSearchVal('')
       pinList.clear
       setPinCards([...pinList])
     }
@@ -92,9 +104,23 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
             placeholderTextColor={'#d9d9d9'}
             placeholder='Search'
             style={styles.input}
+            value={searchVal}
+            onChangeText={(input: string) => {
+              setSearchVal(input)
+              if (input != '') {
+                const filteredCards = pinCards.filter(card =>
+                  card.props.text.title
+                    .toLowerCase()
+                    .includes(input.toLowerCase()),
+                )
+                setRenderList(filteredCards)
+              } else {
+                setRenderList([...pinCards])
+              }
+            }}
           />
           <FlatList
-            data={pinCards}
+            data={renderList}
             renderItem={({item}) => item}
             keyExtractor={item => item.key}
           />
