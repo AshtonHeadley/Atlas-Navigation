@@ -111,7 +111,7 @@ const CompassPage = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: backGroundColor}}>
-      <View style={{flex: 1}}></View>
+      <View style={{flex: 1}} />
       <View
         style={{
           flex: 0.5,
@@ -149,7 +149,7 @@ const CompassPage = ({navigation}) => {
       <View style={{flex: 4}}>
         <View style={{...styles.container, ...styles.Shadow}}>
           <Animated.Image
-            source={require('../assets/navigation.png')}
+            source={require('../assets/navigation2.gif')}
             style={[
               styles.image,
               {
@@ -196,9 +196,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    padding: 100,
-    width: 125,
-    height: 125,
+    padding: 0,
+    width: 350,
+    height: 350,
   },
   Button: {
     width: '100%',
