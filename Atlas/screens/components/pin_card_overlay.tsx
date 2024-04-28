@@ -51,6 +51,7 @@ const PinOverlayInput = ({
     onSubmit(title, image, coordinates);
     setTitle('');
     setImage('');
+
   };
 
   const imgOptions: ImageLibraryOptions = {
@@ -74,23 +75,25 @@ const PinOverlayInput = ({
     );
   }
 
-  interface ImagePickerResponse {
-    didCancel?: boolean;
-    error?: string;
-    uri?: string;
-   }
+  // interface ImagePickerResponse {
+  //   didCancel?: boolean;
+  //   error?: string;
+  //   uri?: string;
+  //   assets?: Array<{uri: string}>;
+  //  }
 
-  const handleImageSelection = (response: ImagePickerResponse) => {
+  const handleImageSelection = (response) => {
+    console.log(response.assets?.[0]?.uri);
     if (response.didCancel) {
       console.log('User cancelled image picker');
     } else if (response.error) {
       console.log('ImagePicker Error: ', response.error);
-    } else if (response.uri) {
-      setImage(response.uri);
-   } else {
+    } else if (response.assets?.[0]?.uri) {
+      setImage(response.assets?.[0]?.uri);
+    } else {
       console.log('No URI provided');
-   }
- };
+    }
+  };
   return (
     <Modal transparent={false} visible={isVisible} animationType="slide">
       <View
