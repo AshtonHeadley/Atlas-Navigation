@@ -1,16 +1,16 @@
 import React, {useState} from 'react';
 import {
-  Button,
   Modal,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableHighlight,
-  TouchableOpacity,
   View,
-} from 'react-native';
-import {colorTheme, screenHeight} from '../Home_Page';
-import {Alert} from 'react-native';
+} from 'react-native'
+import {screenHeight} from '../Home_Page'
+import {Alert} from 'react-native'
+import {backGroundColor, themeColor} from '../../default-styles'
 import {
   launchImageLibrary,
   launchCamera,
@@ -23,10 +23,11 @@ const PinOverlayInput = ({
   onSubmit,
   coordinates = [],
 }) => {
-  const [title, setTitle] = useState('');
-  // const [description, setDescription] = useState('')
+  const [title, setTitle] = useState('')
+  const [isPress, setIsPress] = useState(false)
+  const [isEnabled, setIsEnabled] = useState(false)
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState)
   const [image, setImage] = useState('');
-  const [isPress, setIsPress] = useState(false);
 
   const touchProps = {
     activeOpacity: 1,
@@ -39,7 +40,6 @@ const PinOverlayInput = ({
 
   const handleCancel = () => {
     setTitle('');
-
     setImage('');
     onCancel();
   };
@@ -75,13 +75,6 @@ const PinOverlayInput = ({
     );
   }
 
-  // interface ImagePickerResponse {
-  //   didCancel?: boolean;
-  //   error?: string;
-  //   uri?: string;
-  //   assets?: Array<{uri: string}>;
-  //  }
-
   const handleImageSelection = (response) => {
     console.log(response.assets?.[0]?.uri);
     if (response.didCancel) {
@@ -95,22 +88,21 @@ const PinOverlayInput = ({
     }
   };
   return (
-    <Modal transparent={false} visible={isVisible} animationType="slide">
+    <Modal transparent={true} visible={isVisible} animationType='fade'>
       <View
         style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
           flex: 1,
-          backgroundColor: 'black',
-          opacity: 0.8,
           justifyContent: 'center',
           alignItems: 'center',
           padding: 20,
         }}>
         <View
           style={{
-            height: '50%',
+            height: '30%',
             width: '90%',
             position: 'absolute',
-            backgroundColor: 'white',
+            backgroundColor: themeColor,
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
@@ -118,20 +110,28 @@ const PinOverlayInput = ({
           }}>
           <Text style={styles.title}>Create Pin</Text>
           <TextInput
-            placeholderTextColor={'grey'}
-            placeholder="Title"
+            placeholderTextColor={'white'}
+            placeholder='Title'
             value={title}
             onChangeText={text => setTitle(text)}
             style={styles.input}
           />
-          {/* <TextInput
-            placeholderTextColor={'grey'}
-            multiline={true}
-            placeholder='Description'
-            value={description}
-            onChangeText={text => setDescription(text)}
-            style={styles.descInput}
-          /> */}
+          <View
+            style={{
+              flexDirection: 'row',
+            }}>
+            <View style={{justifyContent: 'center', marginRight: 8}}>
+              <Text style={{color: '#f4f3f4', fontWeight: 'bold'}}>
+                Publish Pin?
+              </Text>
+            </View>
+            <Switch
+              trackColor={{false: backGroundColor, true: backGroundColor}}
+              thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
+              onValueChange={toggleSwitch}
+              value={isEnabled}
+            />
+          </View>
           <Button title="Add Image" onPress={handleImage} />
           <View
             style={{
@@ -146,7 +146,7 @@ const PinOverlayInput = ({
               <Text style={{fontWeight: 'bold'}}>Cancel</Text>
             </TouchableHighlight>
             <TouchableHighlight
-              {...{...touchProps, underlayColor: colorTheme}}
+              {...{...touchProps, underlayColor: 'lime'}}
               style={{
                 ...styles.button,
                 borderWidth: 2,
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontSize: screenHeight / 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: colorTheme,
+    color: 'white',
   },
   input: {
     width: '80%',

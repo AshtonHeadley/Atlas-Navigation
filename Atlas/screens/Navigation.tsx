@@ -12,9 +12,10 @@ import {
   requestLocationPermission,
 } from './Pins'
 import GeoLocation from 'react-native-geolocation-service'
-import {useState, useRef, useEffect} from 'react'
+import {useState, useEffect} from 'react'
 import CompassHeading from 'react-native-compass-heading'
-import {colorTheme, screenHeight, screenWidth} from './Home_Page'
+import {screenHeight, screenWidth} from './Home_Page'
+import {backGroundColor, themeColor} from '../default-styles'
 
 const CompassPage = ({navigation}) => {
   const [location, setLocation] = useState({latitude: 0, longitude: 0})
@@ -109,8 +110,8 @@ const CompassPage = ({navigation}) => {
   }, [azimuth, heading])
 
   return (
-    <View style={{flex: 1, backgroundColor: '#132b33'}}>
-      <View style={{flex: 1}}></View>
+    <View style={{flex: 1, backgroundColor: backGroundColor}}>
+      <View style={{flex: 1}} />
       <View
         style={{
           flex: 0.5,
@@ -146,9 +147,9 @@ const CompassPage = ({navigation}) => {
         </View>
       </View>
       <View style={{flex: 4}}>
-        <View style={styles.container}>
+        <View style={{...styles.container, ...styles.Shadow}}>
           <Animated.Image
-            source={require('../assets/navigation.png')}
+            source={require('../assets/navigation2.gif')}
             style={[
               styles.image,
               {
@@ -172,13 +173,12 @@ const CompassPage = ({navigation}) => {
           }}
           style={{
             ...styles.Button,
-            backgroundColor: colorTheme,
+            backgroundColor: themeColor,
             ...styles.Shadow,
           }}>
           <Text
             style={{
               fontSize: screenWidth / 20,
-              // fontWeight: 'bold',
               color: 'white',
             }}>
             Back
@@ -196,16 +196,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    padding: 100,
-    width: 125,
-    height: 125,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 4,
-      height: 6,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3.5,
+    padding: 0,
+    width: 350,
+    height: 350,
   },
   Button: {
     width: '100%',
@@ -215,16 +208,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   TitleText: {
-    // position: 'absolute',
-    left: 0,
-    right: 0,
     justifyContent: 'center',
     alignContent: 'center',
-    // marginLeft: screenWidth / 4,
     flex: 1,
-    fontSize: screenWidth / 10,
+    fontSize: screenWidth / 8,
     fontWeight: 'bold',
-    color: '#66a7bb',
+    color: themeColor,
   },
   Text: {
     justifyContent: 'center',
@@ -241,7 +230,7 @@ const styles = StyleSheet.create({
       height: 8,
     },
     shadowOpacity: 0.5,
-    shadowRadius: 3.5,
+    shadowRadius: 6.5,
   },
 })
 

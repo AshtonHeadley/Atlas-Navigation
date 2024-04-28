@@ -1,9 +1,9 @@
 import React, {lazy, Suspense} from 'react'
 import {ActivityIndicator, View, StyleSheet} from 'react-native'
 
-const Login = lazy(() => import('./Login_Screen'))
+const Pins = lazy(() => import('../Pins'))
 
-const LazyLogin = props => {
+const LazyPins = props => {
   return (
     <Suspense
       fallback={
@@ -11,7 +11,7 @@ const LazyLogin = props => {
           <ActivityIndicator size='large' color='grey' />
         </View>
       }>
-      <Login {...props} />
+      <Pins {...props} />
     </Suspense>
   )
 }
@@ -25,4 +25,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default LazyLogin
+export default LazyPins

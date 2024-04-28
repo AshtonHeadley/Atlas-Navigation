@@ -10,27 +10,52 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import {FIREBASE_APP, FIREBASE_AUTH, PERSISTENT_AUTH} from '../FirebaseConfig'
-import React from 'react'
-import {getFirestore} from '@firebase/firestore'
+import {
+  FIREBASE_APP,
+  FIREBASE_AUTH,
+  FIREBASE_DATABASE,
+  FIREBASE_FIRESTORE,
+  PERSISTENT_AUTH,
+} from '../FirebaseConfig'
+import React, {useEffect} from 'react'
+import {collection, doc, getDoc, getFirestore} from '@firebase/firestore'
 import FastImage from 'react-native-fast-image'
+import {backGroundColor, themeColor} from '../default-styles'
 
 export const screenWidth = Dimensions.get('window').width
 export const screenHeight = Dimensions.get('window').height
 export const pinComponents = new Map()
 export let GLOBAL_EMAIL = ''
+export let GLOBAL_USERNAME = ''
+
+export const GET_USERNAME = async () => {
+  const userDocRef = doc(
+    collection(getFirestore(FIREBASE_APP), 'users'),
+    GLOBAL_EMAIL.toLowerCase(),
+  )
+  const userDoc = await getDoc(userDocRef)
+  const userData = userDoc.data()
+  if (userData) {
+    GLOBAL_USERNAME = userData.name
+  }
+}
 
 const HomePage = ({navigation}) => {
   const db = getFirestore(FIREBASE_APP)
-
   GLOBAL_EMAIL = PERSISTENT_AUTH.currentUser?.email
     ? PERSISTENT_AUTH.currentUser?.email
     : ''
   console.log(GLOBAL_EMAIL)
   const auth = FIREBASE_AUTH
+
+  useEffect(() => {
+    GET_USERNAME()
+    console.log(GLOBAL_USERNAME)
+  }, [])
+
   return (
     //Screen with 3 buttons
-    <View style={{flex: 1, backgroundColor: '#132b33'}}>
+    <View style={{flex: 1, backgroundColor: backGroundColor}}>
       <View style={{flex: 1}}>
         <View
           style={{
@@ -73,7 +98,7 @@ const HomePage = ({navigation}) => {
             }}
             style={{
               ...styles.Button,
-              backgroundColor: colorTheme,
+              backgroundColor: themeColor,
             }}>
             <FastImage
               source={require('../assets/pin.png')}
@@ -84,7 +109,7 @@ const HomePage = ({navigation}) => {
           <TouchableOpacity
             style={{
               ...styles.Button,
-              backgroundColor: colorTheme,
+              backgroundColor: themeColor,
             }}>
             <FastImage
               source={require('../assets/multiple-users-silhouette.png')}
@@ -95,7 +120,7 @@ const HomePage = ({navigation}) => {
           <TouchableOpacity
             style={{
               ...styles.Button,
-              backgroundColor: colorTheme,
+              backgroundColor: themeColor,
             }}>
             <FastImage
               source={require('../assets/profile-user.png')}
@@ -109,7 +134,6 @@ const HomePage = ({navigation}) => {
   )
 }
 
-export const colorTheme = '#4192ab'
 // styling options
 const styles = StyleSheet.create({
   TopRow: {
@@ -137,7 +161,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: screenHeight / 14,
     fontWeight: 'bold',
-    color: colorTheme,
+    color: themeColor,
     shadowColor: '#000',
     shadowOffset: {
       width: 4,

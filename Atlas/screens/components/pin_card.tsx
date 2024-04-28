@@ -1,11 +1,19 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import {colorTheme, screenHeight, screenWidth} from '../Home_Page'
+import {screenHeight, screenWidth} from '../Home_Page'
 import {useState} from 'react'
 import ExpandableView from './Expandable_View'
+import {themeColor} from '../../default-styles'
 
-const PinCard = ({text, onPressDel, onPressNav}) => {
+const PinCard = ({
+  text,
+  onPressDel = () => {},
+  onPressNav = () => {},
+  onPressAdd = () => {},
+  addPin = false,
+  creator = '',
+}) => {
   const [isExpanded, setIsExpanded] = useState(true)
-  const {title, description, coordinates} = text
+  const {title, coordinates} = text
   const [bottomWidth, setBottomWidth] = useState(3)
   const [vertMargin, setVertMargin] = useState(8)
   const [radius, setRadius] = useState(5)
@@ -33,14 +41,19 @@ const PinCard = ({text, onPressDel, onPressNav}) => {
             borderBottomLeftRadius: radius,
             marginVertical: vertMargin,
           }}>
-          <Text style={styles.TitleText}>{title}</Text>
-          <Text style={styles.SubTitleText}>Location: {description}</Text>
+          <View style={{flex: 2}}>
+            <Text style={styles.TitleText}>{title}</Text>
+            <Text style={styles.SubTitleText}>{creator}</Text>
+          </View>
+          <View style={styles.ImageView}></View>
         </View>
         <ExpandableView
           expanded={isExpanded}
           onPressDel={onPressDel}
           onPressNav={onPressNav}
           coordinates={coordinates}
+          addPin={addPin}
+          onPressAdd={onPressAdd}
         />
       </TouchableOpacity>
     </View>
@@ -49,20 +62,14 @@ const PinCard = ({text, onPressDel, onPressNav}) => {
 
 const styles = StyleSheet.create({
   Card: {
-    marginHorizontal: 20,
-    padding: 5,
     borderTopRightRadius: 5,
     borderTopLeftRadius: 5,
-    borderTopWidth: 0,
-    borderRightWidth: 0,
-    borderLeftWidth: 0,
-    borderBottomWidth: 0,
-    borderColor: colorTheme,
     height: screenHeight / 8,
     width: screenWidth / 1.25,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: '#2d6677',
+    flexDirection: 'row',
     shadowColor: '#000',
     shadowOffset: {
       width: 4,
@@ -72,16 +79,24 @@ const styles = StyleSheet.create({
     shadowRadius: 3.5,
   },
   TitleText: {
-    justifyContent: 'center',
-    alignContent: 'center',
-    flex: 1,
-    fontSize: screenHeight / 24,
+    marginRight: 10,
+    paddingTop: screenHeight / 32,
+    paddingLeft: 8,
+    fontSize: screenHeight / 36,
     fontWeight: 'bold',
     color: 'white',
-  },
-  SubTitleText: {
     justifyContent: 'center',
     alignContent: 'center',
+  },
+  ImageView: {
+    backgroundColor: themeColor,
+    height: screenHeight / 8,
+    borderRadius: 5,
+    flex: 1.25,
+  },
+  SubTitleText: {
+    marginRight: 10,
+    paddingLeft: 10,
     flex: 1,
     fontSize: screenHeight / 48,
     // fontWeight: 'bold',

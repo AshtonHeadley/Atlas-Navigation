@@ -1,7 +1,8 @@
 import React from 'react'
 import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native'
-import {colorTheme, screenHeight} from '../Home_Page'
+import {screenHeight} from '../Home_Page'
 import FastImage from 'react-native-fast-image'
+import {themeColor} from '../../default-styles'
 
 const NavigationItem = ({item}) => {
   const {icon, title, onPress} = item // Destructure item props
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   touchable: {
-    backgroundColor: colorTheme,
+    backgroundColor: themeColor,
     borderRadius: 15,
     padding: 12,
   },

@@ -17,8 +17,9 @@ import NavigationBar, {
   profileNavItem,
 } from './components/NavigationBar'
 import {
+  GET_USERNAME,
   GLOBAL_EMAIL,
-  colorTheme,
+  GLOBAL_USERNAME,
   pinComponents,
   screenHeight,
   screenWidth,
@@ -33,29 +34,39 @@ import {
   getFirestore,
   getDocs,
   deleteDoc,
+  getDoc,
 } from '@firebase/firestore'
 import {FIREBASE_APP} from '../FirebaseConfig'
 import FastImage from 'react-native-fast-image'
+import {backGroundColor, themeColor} from '../default-styles'
+import PublicPins from './components/PublicPins'
+import {isEnabled} from 'react-native/Libraries/Performance/Systrace'
 
 const db = getFirestore(FIREBASE_APP)
 export let currentNavTarget = [0, 0]
 export let currentNavTitle = ''
 
-const getPinCollection = () => {
-  const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase()) //reference to document in firebase
+export const getPinCollection = (collectionName: string) => {
+  const userDocRef = doc(
+    collection(db, collectionName),
+    GLOBAL_EMAIL.toLowerCase(),
+  ) //reference to document in firebase
   const pinCollection = collection(userDocRef, 'Pins')
   return pinCollection
 }
 
-const loadPinComponents = async () => {
-  const querySnapshot = await getDocs(getPinCollection())
+export const loadPinComponents = async (collectionName: string) => {
+  const querySnapshot = await getDocs(getPinCollection(collectionName))
   const docs = querySnapshot.docs.map(doc => doc.data())
   return docs
 }
 
-const deletePinComponent = async (title: string) => {
-  const docToRemove = doc(getPinCollection(), title)
+const deletePinComponent = async (title: string, published: boolean) => {
+  const docToRemove = doc(getPinCollection('users'), title)
   await deleteDoc(docToRemove)
+  if (published) {
+    deleteDoc(doc(collection(db, 'PublicPins'), title + GLOBAL_EMAIL))
+  }
 }
 
 const deleteFunc = (
@@ -64,11 +75,18 @@ const deleteFunc = (
 ) => {
   const cardKey = card.title
   pinComponents.delete(cardKey) //remove card from map using unique key to find
-  deletePinComponent(card.title)
+  deletePinComponent(card.title, card.published)
   setPinCardsCallback([...pinComponents.values()])
 }
 
-const createPinCard = (
+const copyPinFunc = (card: any) => {
+  //document name will be email input, within the user's collection
+  const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase()) //reference to document in firebase
+  const pinCollection = doc(collection(userDocRef, 'Pins'), card.title)
+  setDoc(pinCollection, card) //adding data to document path
+}
+
+export const createPinCard = (
   inputTitle: string,
   latitude: number,
   longitude: number,
@@ -76,6 +94,9 @@ const createPinCard = (
   key: number,
   setPinCardsCallback: (newCards: any[]) => void,
   onPressNav: () => void,
+  user: string,
+  published = false,
+  addPin = false,
 ) => {
   const card = {
     //card data object
@@ -86,10 +107,15 @@ const createPinCard = (
       long: longitude,
       specialNum: specialNum,
     },
+    published: published,
+    user: user,
   }
   //function passed into every card's delete button
   const func = {
     onPressDel: deleteFunc.bind(null, card, setPinCardsCallback),
+  }
+  const func2 = {
+    onPressAdd: copyPinFunc.bind(null, card),
   }
   //Create custom PinCard
   return (
@@ -98,6 +124,9 @@ const createPinCard = (
       onPressNav={onPressNav}
       onPressDel={func.onPressDel}
       key={key}
+      addPin={addPin}
+      onPressAdd={func2.onPressAdd}
+      creator={user}
     />
   )
 }
@@ -172,6 +201,10 @@ const Pins = ({navigation}) => {
   const showOverlay = () => setIsOverlayVisible(true)
   const hideOverlay = () => setIsOverlayVisible(false)
 
+  const [isSearchVisible, setIsSearchVisible] = useState(false)
+  const showSearch = () => setIsSearchVisible(true)
+  const hideSearch = () => setIsSearchVisible(false)
+
   const onPressNav = ({title = '', latitude = 0, longitude = 0}) => {
     const lat = latitude
     const long = longitude
@@ -184,7 +217,10 @@ const Pins = ({navigation}) => {
     latitude: number,
     longitude: number,
     inputTitle: string,
+    isPublished = false,
+    user: string,
     newPin = true,
+    addPin = false,
   ) => {
     const specialNum = Math.random()
     const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
@@ -200,32 +236,54 @@ const Pins = ({navigation}) => {
         latitude: latitude,
         longitude: longitude,
       }),
+      user,
+      isPublished,
+      addPin,
     )
     if (newPin) {
-      await addPinToDB(inputTitle, latitude, longitude, specialNum, key)
+      await addPinToDB(
+        inputTitle,
+        latitude,
+        longitude,
+        specialNum,
+        key,
+        isPublished,
+      )
     }
     pinComponents.set(inputTitle, pinCard)
     setPinCards([...pinComponents.values()])
   }
-
   useEffect(() => {
-    const loadPins = async () => {
-      try {
-        const pins = await loadPinComponents() // Call loadPinComponents
-        pins.forEach(pin => {
-          handleCreatePin(pin.latitude, pin.longitude, pin.title, false)
-        })
-      } catch (e) {
-        console.error('Error loading pins:', e)
+    if (!isSearchVisible) {
+      const loadPins = async () => {
+        try {
+          const pins = await loadPinComponents('users') // Call loadPinComponents
+          pins.forEach(pin => {
+            handleCreatePin(
+              pin.latitude,
+              pin.longitude,
+              pin.title,
+              pin.published,
+              pin.user,
+              false,
+            )
+          })
+        } catch (e) {
+          console.error('Error loading pins:', e)
+        }
       }
+      loadPins()
     }
-    loadPins()
     return
-  }, [])
+  }, [isSearchVisible])
 
-  const handleOverlaySubmit = async (title: any, description: any) => {
-    await getLocation(title, description)
+  const handleOverlaySubmit = async (title: any, isEnabled: boolean) => {
+    await getLocation(title, isEnabled)
     hideOverlay()
+  }
+
+  const handleSearchSubmit = async () => {
+    hideSearch()
   }
 
   const addPinToDB = async (
@@ -234,15 +292,18 @@ const Pins = ({navigation}) => {
     longitude: number,
     specialNum: number,
     key: number,
+    published = false,
   ) => {
+    const data = {
+      title: title,
+      latitude: latitude,
+      longitude: longitude,
+      specialNum: specialNum,
+      key: key,
+      user: GLOBAL_USERNAME,
+      published,
+    }
     try {
-      const data = {
-        title: title,
-        latitude: latitude,
-        longitude: longitude,
-        specialNum: specialNum,
-        key: key,
-      }
       //document name will be email input, within the user's collection
       const userDocRef = doc(
         collection(db, 'users'),
@@ -251,12 +312,23 @@ const Pins = ({navigation}) => {
       const pinCollection = doc(collection(userDocRef, 'Pins'), title)
       await setDoc(pinCollection, data) //adding data to document path
     } catch (error) {
-      console.error('Error adding data:', error)
+      console.error('Error adding data to user:', error)
+    }
+    if (published) {
+      try {
+        const pinCollection = doc(
+          collection(db, 'PublicPins'),
+          title + GLOBAL_EMAIL,
+        )
+        await setDoc(pinCollection, data) //adding data to document path
+      } catch (error) {
+        console.error('Error adding data to Public Pins:', error)
+      }
     }
   }
 
   //Gets location and creates card to display
-  const getLocation = async (inputTitle: string, desc: String) => {
+  const getLocation = async (inputTitle: string, isEnabled: boolean) => {
     if (pinComponents.has(inputTitle)) {
       Alert.alert('Pin with that title already exists')
       return
@@ -267,7 +339,14 @@ const Pins = ({navigation}) => {
       GeoLocation.getCurrentPosition(
         async position => {
           const {latitude, longitude} = position.coords //output of get CurrentPosition
-          handleCreatePin(latitude, longitude, inputTitle)
+          handleCreatePin(
+            latitude,
+            longitude,
+            inputTitle,
+            isEnabled,
+            GLOBAL_USERNAME,
+            true,
+          )
           setLoading(false)
         },
         error => {
@@ -279,46 +358,73 @@ const Pins = ({navigation}) => {
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: '#132b33'}}>
+    <View style={{flex: 1, backgroundColor: backGroundColor}}>
       <PinOverlayInput //Overlay to input info when adding pin, custom component
         isVisible={isOverlayVisible}
         onCancel={hideOverlay}
         onSubmit={handleOverlaySubmit}
       />
+      <PublicPins isVisible={isSearchVisible} onSubmit={handleSearchSubmit} />
       <View //top section, title and add pin button
         style={{
-          flex: 1.6,
-          marginHorizontal: screenWidth / 12,
+          flex: 1.7,
+          justifyContent: 'flex-end',
         }}>
-        <View style={{flex: 1, justifyContent: 'flex-end'}}>
-          <Text //title
-            style={styles.TitleText}>
-            Pins
-          </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View style={{flex: 3}} />
+          <View style={{flex: 4}}>
+            <Text style={styles.TitleText}>Pins</Text>
+          </View>
+          <TouchableOpacity
+            style={{...styles.ImageView, flex: 1.5}}
+            onPress={async () => {
+              showSearch()
+            }}>
+            <FastImage
+              source={require('../assets/magnifying-glass.png')}
+              style={{width: 24, height: 24}}
+            />
+          </TouchableOpacity>
         </View>
-        <View //add pin button
-          style={{flex: 0, justifyContent: 'flex-end'}}>
-          {loading ? (
-            <View style={{height: screenHeight / 11}}>
-              <ActivityIndicator size={'large'} color='grey' />
-            </View>
-          ) : (
-            <>
-              <TouchableOpacity
-                onPress={async () => {
-                  showOverlay()
-                }}
-                style={{
-                  ...styles.Button,
-                  backgroundColor: colorTheme,
-                }}>
-                <FastImage
-                  source={require('../assets/add.png')}
-                  style={{width: 32, height: 32}}
-                />
-              </TouchableOpacity>
-            </>
-          )}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View //add pin button
+            style={{
+              flex: 1,
+              marginHorizontal: screenWidth / 12,
+              marginVertical: 5,
+            }}>
+            {loading ? (
+              <View style={{height: screenHeight / 11}}>
+                <ActivityIndicator size={'large'} color='grey' />
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={async () => {
+                    showOverlay()
+                  }}
+                  style={{
+                    ...styles.Button,
+                    backgroundColor: themeColor,
+                  }}>
+                  <FastImage
+                    source={require('../assets/add.png')}
+                    style={{width: 32, height: 32}}
+                  />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         </View>
       </View>
       <View
@@ -347,7 +453,6 @@ const Pins = ({navigation}) => {
           leftItem={{
             ...homeNavItem,
             onPress: () => {
-              console.log('here')
               pinComponents.clear()
               setPinCards([...pinComponents.values()])
               navigation.navigate('HomeScreen')
@@ -370,25 +475,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    // shadowColor: '#000',
-    // shadowOffset: {
-    //   width: 4,
-    //   height: 6,
-    // },
-    // shadowOpacity: 0.5,
-    // shadowRadius: 3.5,
   },
   TitleText: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
-    alignContent: 'center',
-    marginLeft: screenWidth / 4,
-    flex: 1,
     fontSize: screenHeight / 14,
     fontWeight: 'bold',
-    color: colorTheme,
+    color: themeColor,
+  },
+  ImageView: {
+    // backgroundColor: themeColor,
+    height: screenHeight / 12,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignContent: 'center',
   },
 })
 
