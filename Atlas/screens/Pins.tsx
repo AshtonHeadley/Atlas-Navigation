@@ -277,11 +277,7 @@ const Pins = ({navigation}) => {
     return
   }, [isSearchVisible])
 
-  const handleOverlaySubmit = async (
-    title: any,
-    description: any,
-    isEnabled: boolean,
-  ) => {
+  const handleOverlaySubmit = async (title: any, isEnabled: boolean) => {
     await getLocation(title, isEnabled)
     hideOverlay()
   }
