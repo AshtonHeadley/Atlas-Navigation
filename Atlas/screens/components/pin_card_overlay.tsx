@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import {
   Modal,
   StyleSheet,
@@ -11,6 +11,11 @@ import {
 import {screenHeight} from '../Home_Page'
 import {Alert} from 'react-native'
 import {backGroundColor, themeColor} from '../../default-styles'
+import {
+  launchImageLibrary,
+  launchCamera,
+  ImageLibraryOptions
+} from 'react-native-image-picker';
 
 const PinOverlayInput = ({
   isVisible = false,
@@ -22,6 +27,7 @@ const PinOverlayInput = ({
   const [isPress, setIsPress] = useState(false)
   const [isEnabled, setIsEnabled] = useState(false)
   const toggleSwitch = () => setIsEnabled(previousState => !previousState)
+  const [image, setImage] = useState('');
 
   const touchProps = {
     activeOpacity: 1,
@@ -30,20 +36,57 @@ const PinOverlayInput = ({
     onHideUnderlay: () => setIsPress(false),
     onShowUnderlay: () => setIsPress(true),
     onPress: () => console.log('HELLO'), // <-- "onPress" is apparently required
-  }
+  };
 
   const handleCancel = () => {
-    setTitle('')
-    onCancel()
-  }
+    setTitle('');
+    setImage('');
+    onCancel();
+  };
   const handleSubmit = () => {
     if (title === '') {
-      Alert.alert('Enter a title')
-      return
+      Alert.alert('Enter a title');
+      return;
     }
-    onSubmit(title, coordinates, isEnabled)
-    setTitle('')
+    onSubmit(title, image, coordinates);
+    setTitle('');
+    setImage('');
+
+  };
+
+  const imgOptions: ImageLibraryOptions = {
+    mediaType: 'photo',
+    includeBase64: false,
+  };
+
+
+
+  const handleImage = () => {
+    // Prompt user to choose between gallery and camera
+    Alert.alert(
+      'Add Image',
+      'Choose an option',
+      [
+        {text: 'Take Photo', onPress: () => launchCamera(imgOptions, handleImageSelection)},
+        {text: 'Choose from Gallery', onPress: () => launchImageLibrary(imgOptions, handleImageSelection)},
+        {text: 'Cancel', style: 'cancel'},
+      ],
+      {cancelable: true},
+    );
   }
+
+  const handleImageSelection = (response) => {
+    console.log(response.assets?.[0]?.uri);
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.error) {
+      console.log('ImagePicker Error: ', response.error);
+    } else if (response.assets?.[0]?.uri) {
+      setImage(response.assets?.[0]?.uri);
+    } else {
+      console.log('No URI provided');
+    }
+  };
   return (
     <Modal transparent={true} visible={isVisible} animationType='fade'>
       <View
@@ -89,7 +132,7 @@ const PinOverlayInput = ({
               value={isEnabled}
             />
           </View>
-
+          <Button title="Add Image" onPress={handleImage} />
           <View
             style={{
               flexDirection: 'row',
@@ -116,8 +159,8 @@ const PinOverlayInput = ({
         </View>
       </View>
     </Modal>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   title: {
@@ -165,6 +208,6 @@ const styles = StyleSheet.create({
     height: 30,
     width: 100,
   },
-})
+});
 
-export default PinOverlayInput
+export default PinOverlayInput;

@@ -78,7 +78,7 @@ const CreateAccount = ({navigation}) => {
     }
     if (!password.includes('!' || '@' || '$' || '%')) {
       Alert.alert(
-        `Password does not include one of the following: \n '!', '@', '$', or '%'`,
+        `Password does not include one of the following: '!', '@', '$', or '%'`,
       )
       return
     }
