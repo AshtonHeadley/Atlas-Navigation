@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableHighlight,
   View,
+  Button,
 } from 'react-native'
 import {screenHeight} from '../Home_Page'
 import {Alert} from 'react-native'
