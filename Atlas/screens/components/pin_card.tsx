@@ -1,14 +1,16 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native'
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
 import {screenHeight, screenWidth} from '../Home_Page'
 import {useState} from 'react'
 import ExpandableView from './Expandable_View'
 import {themeColor} from '../../default-styles'
+import FastImage from 'react-native-fast-image'
 
 const PinCard = ({
   text,
   onPressDel = () => {},
   onPressNav = () => {},
   onPressAdd = () => {},
+  image = '',
   addPin = false,
   creator = '',
 }) => {
@@ -45,7 +47,7 @@ const PinCard = ({
             <Text style={styles.TitleText}>{title}</Text>
             <Text style={styles.SubTitleText}>{creator}</Text>
           </View>
-          <View style={styles.ImageView}></View>
+          <FastImage source={{uri: image}} style={styles.ImageView} />
         </View>
         <ExpandableView
           expanded={isExpanded}
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   ImageView: {
-    backgroundColor: themeColor,
+    // backgroundColor: themeColor,
     height: screenHeight / 8,
     borderRadius: 5,
     flex: 1.25,

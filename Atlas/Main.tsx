@@ -6,10 +6,6 @@ import CreateAccount from './Screens/CreateAccount_screen'
 import CompassPage from './Screens/Navigation'
 import Pins from './Screens/LazyLoadScreens/LazyPins'
 import Home from './Screens/LazyLoadScreens/LazyHome'
-import LoginScreen from './Screens/Login_Screen'
-import CompassPage from './Screens/Navigation'
-import Pins from './Screens/LazyPins'
-import Home from './Screens/LazyHome'
 import {PERSISTENT_AUTH} from './FirebaseConfig'
 
 const Stack = createNativeStackNavigator()

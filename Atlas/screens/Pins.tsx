@@ -43,7 +43,7 @@ import PublicPins from './components/PublicPins'
 import {isEnabled} from 'react-native/Libraries/Performance/Systrace'
 
 const db = getFirestore(FIREBASE_APP)
-export let currentNavTarget = [0, 0]
+export let currentNavxTarget = [0, 0]
 export let currentNavTitle = ''
 
 export const getPinCollection = (collectionName: string) => {
@@ -92,6 +92,7 @@ export const createPinCard = (
   longitude: number,
   specialNum: number,
   key: number,
+  image = '',
   setPinCardsCallback: (newCards: any[]) => void,
   onPressNav: () => void,
   user: string,
@@ -109,6 +110,7 @@ export const createPinCard = (
     },
     published: published,
     user: user,
+    imageURI: image,
   }
   //function passed into every card's delete button
   const func = {
@@ -123,6 +125,7 @@ export const createPinCard = (
       text={card}
       onPressNav={onPressNav}
       onPressDel={func.onPressDel}
+      image={card.imageURI}
       key={key}
       addPin={addPin}
       onPressAdd={func2.onPressAdd}
@@ -208,7 +211,7 @@ const Pins = ({navigation}) => {
   const onPressNav = ({title = '', latitude = 0, longitude = 0}) => {
     const lat = latitude
     const long = longitude
-    currentNavTarget = [latitude, longitude]
+    currentNavxTarget = [latitude, longitude]
     currentNavTitle = title
     navigation.navigate('Compass')
   }
@@ -218,9 +221,10 @@ const Pins = ({navigation}) => {
     longitude: number,
     inputTitle: string,
     isPublished = false,
+    image = '',
     user: string,
-    newPin = true,
     addPin = false,
+    newPin = true,
   ) => {
     const specialNum = Math.random()
     const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
@@ -230,6 +234,7 @@ const Pins = ({navigation}) => {
       longitude,
       specialNum,
       key,
+      image,
       setPinCards,
       onPressNav.bind(null, {
         title: inputTitle,
@@ -248,6 +253,7 @@ const Pins = ({navigation}) => {
         specialNum,
         key,
         isPublished,
+        image,
       )
     }
     pinComponents.set(inputTitle, pinCard)
@@ -264,7 +270,9 @@ const Pins = ({navigation}) => {
               pin.longitude,
               pin.title,
               pin.published,
+              pin.imageURI,
               pin.user,
+              false,
               false,
             )
           })
@@ -277,8 +285,12 @@ const Pins = ({navigation}) => {
     return
   }, [isSearchVisible])
 
-  const handleOverlaySubmit = async (title: any, isEnabled: boolean) => {
-    await getLocation(title, isEnabled)
+  const handleOverlaySubmit = async (
+    title: any,
+    image: string,
+    isEnabled: boolean,
+  ) => {
+    await getLocation(title, image, isEnabled)
     hideOverlay()
   }
 
@@ -293,6 +305,7 @@ const Pins = ({navigation}) => {
     specialNum: number,
     key: number,
     published = false,
+    imageURI = '',
   ) => {
     const data = {
       title: title,
@@ -302,6 +315,7 @@ const Pins = ({navigation}) => {
       key: key,
       user: GLOBAL_USERNAME,
       published,
+      imageURI,
     }
     try {
       //document name will be email input, within the user's collection
@@ -328,7 +342,11 @@ const Pins = ({navigation}) => {
   }
 
   //Gets location and creates card to display
-  const getLocation = async (inputTitle: string, isEnabled: boolean) => {
+  const getLocation = async (
+    inputTitle: string,
+    image: string,
+    isEnabled: boolean,
+  ) => {
     if (pinComponents.has(inputTitle)) {
       Alert.alert('Pin with that title already exists')
       return
@@ -344,7 +362,9 @@ const Pins = ({navigation}) => {
             longitude,
             inputTitle,
             isEnabled,
+            image,
             GLOBAL_USERNAME,
+            false,
             true,
           )
           setLoading(false)
