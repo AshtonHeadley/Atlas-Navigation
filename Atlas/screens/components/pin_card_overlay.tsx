@@ -1,16 +1,22 @@
-import React, {useState} from 'react'
+import React, {useState} from 'react';
 import {
-  Button,
   Modal,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableHighlight,
-  TouchableOpacity,
   View,
+  Button,
 } from 'react-native'
-import {colorTheme, screenHeight} from '../Home_Page'
+import {screenHeight} from '../Home_Page'
 import {Alert} from 'react-native'
+
+import {
+  launchImageLibrary,
+  launchCamera,
+  ImageLibraryOptions
+} from 'react-native-image-picker';
 
 const PinOverlayInput = ({
   isVisible = false,
@@ -19,8 +25,10 @@ const PinOverlayInput = ({
   coordinates = [],
 }) => {
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
   const [isPress, setIsPress] = useState(false)
+  const [isEnabled, setIsEnabled] = useState(false)
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState)
+  const [image, setImage] = useState('');
 
   const touchProps = {
     activeOpacity: 1,
@@ -29,39 +37,72 @@ const PinOverlayInput = ({
     onHideUnderlay: () => setIsPress(false),
     onShowUnderlay: () => setIsPress(true),
     onPress: () => console.log('HELLO'), // <-- "onPress" is apparently required
-  }
+  };
 
   const handleCancel = () => {
-    setTitle('')
-    setDescription('')
-    onCancel()
-  }
+    setTitle('');
+    setImage('');
+    onCancel();
+  };
   const handleSubmit = () => {
     if (title === '') {
-      Alert.alert('Enter a title')
-      return
+      Alert.alert('Enter a title');
+      return;
     }
-    onSubmit(title, description, coordinates)
-    setTitle('')
-    setDescription('')
+    onSubmit(title, image, coordinates);
+    setTitle('');
+    setImage('');
+
+  };
+
+  const imgOptions: ImageLibraryOptions = {
+    mediaType: 'photo',
+    includeBase64: false,
+  };
+
+
+
+  const handleImage = () => {
+    // Prompt user to choose between gallery and camera
+    Alert.alert(
+      'Add Image',
+      'Choose an option',
+      [
+        {text: 'Take Photo', onPress: () => launchCamera(imgOptions, handleImageSelection)},
+        {text: 'Choose from Gallery', onPress: () => launchImageLibrary(imgOptions, handleImageSelection)},
+        {text: 'Cancel', style: 'cancel'},
+      ],
+      {cancelable: true},
+    );
   }
+
+  const handleImageSelection = (response) => {
+    console.log(response.assets?.[0]?.uri);
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.error) {
+      console.log('ImagePicker Error: ', response.error);
+    } else if (response.assets?.[0]?.uri) {
+      setImage(response.assets?.[0]?.uri);
+    } else {
+      console.log('No URI provided');
+    }
+  };
   return (
-    <Modal transparent={false} visible={isVisible} animationType='slide'>
+    <Modal transparent={true} visible={isVisible} animationType='fade'>
       <View
         style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
           flex: 1,
-          backgroundColor: 'black',
-          opacity: 0.8,
           justifyContent: 'center',
           alignItems: 'center',
           padding: 20,
         }}>
         <View
           style={{
-            height: '50%',
+            height: '30%',
             width: '90%',
             position: 'absolute',
-            backgroundColor: 'white',
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
@@ -69,20 +110,28 @@ const PinOverlayInput = ({
           }}>
           <Text style={styles.title}>Create Pin</Text>
           <TextInput
-            placeholderTextColor={'grey'}
+            placeholderTextColor={'white'}
             placeholder='Title'
             value={title}
             onChangeText={text => setTitle(text)}
             style={styles.input}
           />
-          <TextInput
-            placeholderTextColor={'grey'}
-            multiline={true}
-            placeholder='Description'
-            value={description}
-            onChangeText={text => setDescription(text)}
-            style={styles.descInput}
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+            }}>
+            <View style={{justifyContent: 'center', marginRight: 8}}>
+              <Text style={{color: '#f4f3f4', fontWeight: 'bold'}}>
+                Publish Pin?
+              </Text>
+            </View>
+            <Switch
+              thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
+              onValueChange={toggleSwitch}
+              value={isEnabled}
+            />
+          </View>
+          <Button title="Add Image" onPress={handleImage} />
           <View
             style={{
               flexDirection: 'row',
@@ -96,7 +145,7 @@ const PinOverlayInput = ({
               <Text style={{fontWeight: 'bold'}}>Cancel</Text>
             </TouchableHighlight>
             <TouchableHighlight
-              {...{...touchProps, underlayColor: colorTheme}}
+              {...{...touchProps, underlayColor: 'lime'}}
               style={{
                 ...styles.button,
                 borderWidth: 2,
@@ -109,15 +158,15 @@ const PinOverlayInput = ({
         </View>
       </View>
     </Modal>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   title: {
     fontSize: screenHeight / 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: colorTheme,
+    color: 'white',
   },
   input: {
     width: '80%',
@@ -158,6 +207,6 @@ const styles = StyleSheet.create({
     height: 30,
     width: 100,
   },
-})
+});
 
-export default PinOverlayInput
+export default PinOverlayInput;
