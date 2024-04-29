@@ -80,7 +80,7 @@ const PinOverlayInput = ({
   }
 
   const handleImageSelection = response => {
-    console.log(response.assets?.[0]?.uri)
+    // console.log(response.assets?.[0].base64)
     if (response.didCancel) {
       console.log('User cancelled image picker')
     } else if (response.error) {
