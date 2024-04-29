@@ -107,6 +107,9 @@ const HomePage = ({navigation}) => {
             <Text style={styles.text}>Pins</Text>
           </TouchableOpacity>
           <TouchableOpacity
+           onPress={async () => {
+            navigation.navigate('FriendsScreen')
+          }}
             style={{
               ...styles.Button,
               backgroundColor: themeColor,

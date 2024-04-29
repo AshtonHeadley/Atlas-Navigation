@@ -7,6 +7,8 @@ import CompassPage from './Screens/Navigation'
 import Pins from './Screens/LazyLoadScreens/LazyPins'
 import Home from './Screens/LazyLoadScreens/LazyHome'
 import {PERSISTENT_AUTH} from './FirebaseConfig'
+import FriendsScreen from './Screens/FriendsScreen'
+import FriendRequestsScreen from './Screens/FriendRequestsScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -29,6 +31,8 @@ const Main = () => {
         <Stack.Screen name='CreateAccount' component={CreateAccount} />
         <Stack.Screen name='PinScreen' component={Pins} />
         <Stack.Screen name='Compass' component={CompassPage} />
+        <Stack.Screen name='FriendsScreen' component={FriendsScreen} />
+        <Stack.Screen name='FriendRequestsScreen' component={FriendRequestsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )
