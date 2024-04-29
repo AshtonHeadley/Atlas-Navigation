@@ -140,19 +140,19 @@ const PinOverlayInput = ({
             }}>
             <TouchableHighlight
               {...{...touchProps, underlayColor: 'red'}}
-              style={{...styles.button, borderWidth: 1.5, borderColor: 'black'}}
+              style={{...styles.button, borderWidth: 1.5, borderColor: 'white'}}
               onPress={handleCancel}>
-              <Text style={{fontWeight: 'bold'}}>Cancel</Text>
+              <Text style={{fontWeight: 'bold',color:'#f4f3f4'}}>Cancel</Text>
             </TouchableHighlight>
             <TouchableHighlight
               {...{...touchProps, underlayColor: 'lime'}}
               style={{
                 ...styles.button,
                 borderWidth: 2,
-                borderColor: 'black',
+                borderColor: 'white',
               }}
               onPress={handleSubmit}>
-              <Text style={{fontWeight: 'bold'}}>Confirm</Text>
+              <Text style={{fontWeight: 'bold',color:'#f4f3f4'}}>Confirm</Text>
             </TouchableHighlight>
           </View>
         </View>
@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: screenHeight / 16,
     borderWidth: 1.5,
+    borderColor: 'white',
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,

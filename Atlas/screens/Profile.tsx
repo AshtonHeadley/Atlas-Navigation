@@ -62,7 +62,10 @@ const Profile = ({navigation}) => {
   useEffect(() => {
     getUser()
       .then((result) => {
-        setSelectedImage(result.imageURI);
+        // setSelectedImage(result.imageURI);
+        if (result?.imageURI) {
+          setSelectedImage(result.imageURI);
+        }
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -72,17 +75,34 @@ const Profile = ({navigation}) => {
   const getUser = async () => {
     const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase());
     const userDoc = await getDoc(userDocRef);
-    setUser(userDoc.data().name)
-    setEmail(userDoc.data().email)
-    return userDoc.data();
-  }
+    // setUser(userDoc.data().name)
+    // setEmail(userDoc.data().email)
+    // return userDoc.data();
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      setUser(userData.name);
+      return userData;
+    } else {
+      // Handle the case where the document does not exist
+      console.error('No such document!');
+      return {};
+    }
+  };
 
   const updateImage = async (uri) => {
+    if (!uri) {
+      console.error('No image URI provided to updateImage');
+      return;
+    }
     const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase());
-    await updateDoc(userDocRef, {
-      imageURI: uri
-    });
-  }
+    try {
+      await updateDoc(userDocRef, {
+        imageURI: uri
+      });
+    } catch (error) {
+      console.error('Error updating image URI:', error);
+    }
+  };
 
   const openImagePicker = () => {
     const options = {
@@ -91,10 +111,10 @@ const Profile = ({navigation}) => {
       maxHeight: 2000,
       maxWidth: 2000,
     };
-  
+
     launchImageLibrary(options, handleResponse);
   };
-  
+
   const handleCameraLaunch = () => {
     const options = {
       mediaType: 'photo',
@@ -102,10 +122,10 @@ const Profile = ({navigation}) => {
       maxHeight: 2000,
       maxWidth: 2000,
     };
-  
+
     launchCamera(options, handleResponse);
   };
-  
+
   const handleResponse = (response) => {
     if (response.didCancel) {
       console.log('User cancelled image picker');
@@ -118,7 +138,6 @@ const Profile = ({navigation}) => {
     }
   };
 
-
 return (
   <View style={{ flex: 1, backgroundColor: '#132b33' }}>
     <View style={styles.container}>
@@ -128,15 +147,15 @@ return (
         style={styles.image}
       />
       <Text style={styles.description}>{user}</Text>
-      <Button title="Choose from Device" onPress={() => console.log('Choose Image')} />
-      <Button title="Open Camera" onPress={() => console.log('Camera Open')} />
+      <Button title="Choose from Device" onPress={openImagePicker}  />
+      <Button title="Open Camera" onPress={handleCameraLaunch} />
     </View>
     <View
         style={{
           flex: 0.18,
         }}>
       <NavigationBar // Navigation bar at the bottom of the screen
-        style={{ height: 10000 }} // Fixed height for navigation bar
+        style={{ height: 60 }} // Fixed height for navigation bar
         leftItem={{
          ...homeNavItem,
          onPress: () => navigation.navigate('HomeScreen'),
