@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useState} from 'react'
 import {
+  Button,
   Modal,
   StyleSheet,
   Switch,
@@ -15,8 +16,8 @@ import {backGroundColor, themeColor} from '../../default-styles'
 import {
   launchImageLibrary,
   launchCamera,
-  ImageLibraryOptions
-} from 'react-native-image-picker';
+  ImageLibraryOptions,
+} from 'react-native-image-picker'
 
 const PinOverlayInput = ({
   isVisible = false,
@@ -28,7 +29,7 @@ const PinOverlayInput = ({
   const [isPress, setIsPress] = useState(false)
   const [isEnabled, setIsEnabled] = useState(false)
   const toggleSwitch = () => setIsEnabled(previousState => !previousState)
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState('')
 
   const touchProps = {
     activeOpacity: 1,
@@ -37,30 +38,27 @@ const PinOverlayInput = ({
     onHideUnderlay: () => setIsPress(false),
     onShowUnderlay: () => setIsPress(true),
     onPress: () => console.log('HELLO'), // <-- "onPress" is apparently required
-  };
+  }
 
   const handleCancel = () => {
-    setTitle('');
-    setImage('');
-    onCancel();
-  };
+    setTitle('')
+    setImage('')
+    onCancel()
+  }
   const handleSubmit = () => {
     if (title === '') {
-      Alert.alert('Enter a title');
-      return;
+      Alert.alert('Enter a title')
+      return
     }
-    onSubmit(title, image, coordinates);
-    setTitle('');
-    setImage('');
-
-  };
+    onSubmit(title, image, isEnabled)
+    setTitle('')
+    setImage('')
+  }
 
   const imgOptions: ImageLibraryOptions = {
     mediaType: 'photo',
     includeBase64: false,
-  };
-
-
+  }
 
   const handleImage = () => {
     // Prompt user to choose between gallery and camera
@@ -68,26 +66,32 @@ const PinOverlayInput = ({
       'Add Image',
       'Choose an option',
       [
-        {text: 'Take Photo', onPress: () => launchCamera(imgOptions, handleImageSelection)},
-        {text: 'Choose from Gallery', onPress: () => launchImageLibrary(imgOptions, handleImageSelection)},
+        {
+          text: 'Take Photo',
+          onPress: () => launchCamera(imgOptions, handleImageSelection),
+        },
+        {
+          text: 'Choose from Gallery',
+          onPress: () => launchImageLibrary(imgOptions, handleImageSelection),
+        },
         {text: 'Cancel', style: 'cancel'},
       ],
       {cancelable: true},
-    );
+    )
   }
 
-  const handleImageSelection = (response) => {
-    console.log(response.assets?.[0]?.uri);
+  const handleImageSelection = response => {
+    // console.log(response.assets?.[0].base64)
     if (response.didCancel) {
-      console.log('User cancelled image picker');
+      console.log('User cancelled image picker')
     } else if (response.error) {
-      console.log('ImagePicker Error: ', response.error);
+      console.log('ImagePicker Error: ', response.error)
     } else if (response.assets?.[0]?.uri) {
-      setImage(response.assets?.[0]?.uri);
+      setImage(response.assets?.[0]?.uri)
     } else {
-      console.log('No URI provided');
+      console.log('No URI provided')
     }
-  };
+  }
   return (
     <Modal transparent={true} visible={isVisible} animationType='fade'>
       <View
@@ -100,7 +104,7 @@ const PinOverlayInput = ({
         }}>
         <View
           style={{
-            height: '30%',
+            height: '40%',
             width: '90%',
             position: 'absolute',
             backgroundColor: themeColor,
@@ -133,7 +137,7 @@ const PinOverlayInput = ({
               value={isEnabled}
             />
           </View>
-          <Button title="Add Image" onPress={handleImage} />
+          <Button title='Add Image' onPress={handleImage} />
           <View
             style={{
               flexDirection: 'row',
@@ -160,8 +164,8 @@ const PinOverlayInput = ({
         </View>
       </View>
     </Modal>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   title: {
@@ -209,6 +213,6 @@ const styles = StyleSheet.create({
     height: 30,
     width: 100,
   },
-});
+})
 
-export default PinOverlayInput;
+export default PinOverlayInput

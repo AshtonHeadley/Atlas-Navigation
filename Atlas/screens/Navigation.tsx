@@ -9,6 +9,7 @@ import {
 import {
   currentNavTarget,
   currentNavTitle,
+  currentNavxTarget,
   requestLocationPermission,
 } from './Pins'
 import GeoLocation from 'react-native-geolocation-service'
@@ -32,8 +33,8 @@ const CompassPage = ({navigation}) => {
   }
 
   const target = {
-    latitude: parseFloat(currentNavTarget[0].toFixed(5)),
-    longitude: parseFloat(currentNavTarget[1].toFixed(5)),
+    latitude: parseFloat(currentNavxTarget[0].toFixed(5)),
+    longitude: parseFloat(currentNavxTarget[1].toFixed(5)),
   }
 
   const calculateAzimuth = (lat, lon) => {

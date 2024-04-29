@@ -27,6 +27,7 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
     longitude: number,
     inputTitle: string,
     user: string,
+    image = '',
   ) => {
     const specialNum = Math.random()
     const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
@@ -36,6 +37,7 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
       longitude,
       specialNum,
       key,
+      image,
       setPinCards,
       () => {},
       user,
@@ -58,6 +60,7 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
               pin.longitude,
               pin.title,
               pin.user,
+              pin.imageURI,
             )
             setPinCards([...pinList])
             setRenderList([...pinList])
