@@ -47,7 +47,10 @@ const PinCard = ({
             <Text style={styles.TitleText}>{title}</Text>
             <Text style={styles.SubTitleText}>{creator}</Text>
           </View>
-          <FastImage source={{uri: image}} style={styles.ImageView} />
+          <FastImage
+            source={{uri: 'data:image/png;base64,' + image}}
+            style={styles.ImageView}
+          />
         </View>
         <ExpandableView
           expanded={isExpanded}

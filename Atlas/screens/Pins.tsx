@@ -36,13 +36,13 @@ import {
   deleteDoc,
   getDoc,
 } from '@firebase/firestore'
-import {FIREBASE_APP} from '../FirebaseConfig'
+import {FIREBASE_APP, FIREBASE_FIRESTORE} from '../FirebaseConfig'
 import FastImage from 'react-native-fast-image'
 import {backGroundColor, themeColor} from '../default-styles'
 import PublicPins from './components/PublicPins'
 import {isEnabled} from 'react-native/Libraries/Performance/Systrace'
 
-const db = getFirestore(FIREBASE_APP)
+const db = FIREBASE_FIRESTORE
 export let currentNavxTarget = [0, 0]
 export let currentNavTitle = ''
 
@@ -377,6 +377,11 @@ const Pins = ({navigation}) => {
     }
   }
 
+  const handleExit = () => {
+    pinComponents.clear()
+    setPinCards([...pinComponents.values()])
+  }
+
   return (
     <View style={{flex: 1, backgroundColor: backGroundColor}}>
       <PinOverlayInput //Overlay to input info when adding pin, custom component
@@ -473,15 +478,20 @@ const Pins = ({navigation}) => {
           leftItem={{
             ...homeNavItem,
             onPress: () => {
-              pinComponents.clear()
-              setPinCards([...pinComponents.values()])
+              handleExit()
               navigation.navigate('HomeScreen')
             },
           }}
           centerItem={{
             ...friendsNavItem,
           }}
-          rightItem={profileNavItem}></NavigationBar>
+          rightItem={{
+            ...profileNavItem,
+            onPress: () => {
+              handleExit()
+              navigation.navigate('Profile')
+            },
+          }}></NavigationBar>
       </View>
     </View>
   )

@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
+import ImageResizer from '@bam.tech/react-native-image-resizer'
+import RNFS from 'react-native-fs'
 import {
-  Button,
   Modal,
   StyleSheet,
   Switch,
@@ -56,7 +57,7 @@ const PinOverlayInput = ({
 
   const imgOptions: ImageLibraryOptions = {
     mediaType: 'photo',
-    includeBase64: false,
+    includeBase64: true,
   }
 
   const handleImage = () => {
@@ -86,11 +87,23 @@ const PinOverlayInput = ({
     } else if (response.error) {
       console.log('ImagePicker Error: ', response.error)
     } else if (response.assets?.[0]?.uri) {
-      setImage(response.assets?.[0]?.uri)
+      ImageResizer.createResizedImage(
+        response.assets?.[0]?.uri,
+        256,
+        256,
+        'PNG',
+        60,
+        0,
+      ).then(async response => {
+        RNFS.readFile(response.uri, 'base64').then(async res => {
+          setImage(res)
+        })
+      })
     } else {
       console.log('No URI provided')
     }
   }
+
   return (
     <Modal transparent={true} visible={isVisible} animationType='fade'>
       <View
