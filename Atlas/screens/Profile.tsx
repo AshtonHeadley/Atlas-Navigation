@@ -35,6 +35,8 @@ import {
   getFirestore,
   getDocs,
   deleteDoc,
+  getDoc,
+  updateDoc
 } from '@firebase/firestore'
 import {FIREBASE_APP} from '../FirebaseConfig'
 import FastImage from 'react-native-fast-image'
@@ -53,7 +55,34 @@ const Profile = ({navigation}) => {
   const [isOverlayVisible, setIsOverlayVisible] = useState(false)
   const showOverlay = () => setIsOverlayVisible(true)
   const hideOverlay = () => setIsOverlayVisible(false)
-  const [selectedImage, setSelectedImage] = useState('https://www.nomeatathlete.com/wp-content/uploads/2019/09/ep284.jpg');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [user, setUser] = useState(null);
+  const [email, setEmail] = useState(null);
+
+  useEffect(() => {
+    getUser()
+      .then((result) => {
+        setSelectedImage(result.imageURI);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
+  const getUser = async () => {
+    const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase());
+    const userDoc = await getDoc(userDocRef);
+    setUser(userDoc.data().name)
+    setEmail(userDoc.data().email)
+    return userDoc.data();
+  }
+
+  const updateImage = async (uri) => {
+    const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase());
+    await updateDoc(userDocRef, {
+      imageURI: uri
+    });
+  }
 
   const openImagePicker = () => {
     const options = {
@@ -85,6 +114,7 @@ const Profile = ({navigation}) => {
     } else {
       let imageUri = response.uri || response.assets?.[0]?.uri;
       setSelectedImage(imageUri);
+      updateImage(imageUri);
     }
   };
 
@@ -96,7 +126,7 @@ const Profile = ({navigation}) => {
           source={{ uri: selectedImage }} 
           style={styles.image}
         />
-        <Text style={styles.description}>{GLOBAL_EMAIL}</Text>
+        <Text style={styles.description}>{user}</Text>
         <Button title="Choose from Device" onPress={openImagePicker} />
         <Button title="Open Camera" onPress={handleCameraLaunch} />
       </View>
