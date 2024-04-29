@@ -118,38 +118,42 @@ const Profile = ({navigation}) => {
     }
   };
 
-  return (
-    <View style={{flex: 1, backgroundColor: '#132b33'}}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Profile</Text>
-        <Image
-          source={{ uri: selectedImage }} 
-          style={styles.image}
-        />
-        <Text style={styles.description}>{user}</Text>
-        <Button title="Choose from Device" onPress={openImagePicker} />
-        <Button title="Open Camera" onPress={handleCameraLaunch} />
-      </View>
-      <View
+
+return (
+  <View style={{ flex: 1, backgroundColor: '#132b33' }}>
+    <View style={styles.container}>
+      <Text style={styles.title}>Profile</Text>
+      <Image
+        source={{ uri: selectedImage }}
+        style={styles.image}
+      />
+      <Text style={styles.description}>{user}</Text>
+      <Button title="Choose from Device" onPress={() => console.log('Choose Image')} />
+      <Button title="Open Camera" onPress={() => console.log('Camera Open')} />
+    </View>
+    <View
         style={{
-          flex: 1,
+          flex: 0.18,
         }}>
-        <NavigationBar //navigation bar on bottom of screen
-          leftItem={{
-            ...homeNavItem,
-            onPress: () => {
-              console.log('here')
-              navigation.navigate('HomeScreen')
-            },
-          }}
-          centerItem={{
-            ...friendsNavItem,
-          }}
-          rightItem={profileNavItem}></NavigationBar>
-      </View>
-    </View>    
-  )
-}
+      <NavigationBar // Navigation bar at the bottom of the screen
+        style={{ height: 10000 }} // Fixed height for navigation bar
+        leftItem={{
+         ...homeNavItem,
+         onPress: () => navigation.navigate('HomeScreen'),
+       }}
+        centerItem={{
+          ...friendsNavItem,
+         onPress: () => console.log('Navigate to Friends'),
+        }}
+        rightItem={{
+          ...profileNavItem,
+         onPress: () => navigation.navigate('Profile'),
+       }}
+     />
+    </View>
+  </View>
+);
+};
 
 //Styling options for this page
 const styles = StyleSheet.create({

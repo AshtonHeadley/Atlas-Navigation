@@ -356,7 +356,17 @@ const Pins = ({navigation}) => {
           centerItem={{
             ...friendsNavItem,
           }}
-          rightItem={profileNavItem}></NavigationBar>
+          rightItem={{
+            ...profileNavItem,
+            // onPress: () => console.navigate('Profile')
+            onPress: () => {
+              console.log('profile')
+              pinComponents.clear()
+              setPinCards([...pinComponents.values()])
+              navigation.navigate('Profile')
+            },
+          }}
+          />
       </View>
     </View>
   )
