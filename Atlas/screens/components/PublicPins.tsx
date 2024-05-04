@@ -162,6 +162,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    borderColor: 'white',
+    color: 'white',
   },
   Text: {
     justifyContent: 'center',

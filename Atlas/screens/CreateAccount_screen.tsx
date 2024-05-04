@@ -3,7 +3,6 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
-  Image,
   Text,
   TextInput,
   ActivityIndicator,
@@ -15,17 +14,11 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from '@firebase/auth'
-import {
-  FIREBASE_APP,
-  FIREBASE_AUTH,
-  FIREBASE_DATABASE,
-  FIREBASE_FIRESTORE,
-} from '../FirebaseConfig'
+import {FIREBASE_APP, FIREBASE_AUTH} from '../FirebaseConfig'
 import {
   query,
   collection,
   getFirestore,
-  addDoc,
   setDoc,
   doc,
   getDocs,
@@ -35,18 +28,33 @@ import FastImage from 'react-native-fast-image'
 
 const screenHeight = Dimensions.get('window').height
 
+export const queryName = async (name: string) => {
+  const db = getFirestore(FIREBASE_APP)
+  try {
+    const friendRequestsCollection = collection(db, 'users')
+    const q = query(friendRequestsCollection, where('name', '==', name))
+    const querySnapshot = await getDocs(q)
+    if (querySnapshot.size > 0) {
+      return true
+    }
+  } catch (err) {
+    console.error(err)
+  }
+  return false
+}
 const CreateAccount = ({navigation}) => {
   //TEXTFIELD SETTERS
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   //TEXTFIELD SETTERS
   const [loading, setLoading] = useState(false)
-
-  //Link to firebase
   const auth = FIREBASE_AUTH
   const db = getFirestore(FIREBASE_APP)
+
+  //Link to firebase
 
   //add user input data to DB for later access
   const addUserData = async (userName: string, userEmail: string) => {
@@ -66,7 +74,20 @@ const CreateAccount = ({navigation}) => {
 
   //Sign up handler
   const signUp = async () => {
-    //Checks prior to authentication
+    if (
+      name === '' ||
+      email === '' ||
+      password === '' ||
+      confirmPassword === ''
+    ) {
+      Alert.alert('Fill all fields')
+      return
+    }
+    if (await queryName(name)) {
+      Alert.alert('Username Already Exists')
+      return
+    }
+    // Checks prior to authentication
     setEmail(email.trim())
     if (!email.includes('@') || email === '') {
       Alert.alert('Invalid Email')
@@ -94,9 +115,10 @@ const CreateAccount = ({navigation}) => {
       //send user email verification to confirm account
       await sendEmailVerification(user)
       Alert.alert('Check your email')
+
       //add user's data to DB
       await addUserData(name, email)
-      navigation.navigate('LoginScreen')
+      // navigation.navigate('LoginScreen')
     } catch (error) {
       console.log(email)
       Alert.alert(
@@ -105,6 +127,7 @@ const CreateAccount = ({navigation}) => {
       console.log(error)
     } finally {
       setLoading(false)
+      return
     }
   }
 
@@ -114,7 +137,7 @@ const CreateAccount = ({navigation}) => {
         <View style={{flex: 0.25}}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('LoginScreen')
+              navigation.navigate('Login')
             }}>
             <FastImage
               source={require('../assets/back_arrow.png')}
@@ -133,9 +156,10 @@ const CreateAccount = ({navigation}) => {
       <View style={styles.TextFieldViewStyle}>
         <TextInput
           style={styles.input}
-          placeholder='Full Name'
+          placeholder='Username'
           placeholderTextColor={colorTheme}
           onChangeText={newText => setName(newText)}
+          autoCapitalize='none'
         />
         <TextInput
           style={styles.input}

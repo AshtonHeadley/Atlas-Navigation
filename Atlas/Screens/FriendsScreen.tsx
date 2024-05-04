@@ -68,7 +68,7 @@ const FriendsScreen = ({navigation}) => {
       )
       const querySnapshot = await getDocs(q)
 
-      if (querySnapshot.empty) {
+      if (!querySnapshot.empty) {
         // Create a new friend request document
         const friendRequestData = {
           email: currentUserEmail,

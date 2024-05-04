@@ -1,7 +1,15 @@
 import ImageResizer from '@bam.tech/react-native-image-resizer'
 import RNFS from 'react-native-fs'
 import React, {useEffect, useState} from 'react'
-import {StyleSheet, Text, View, Image, Button} from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Button,
+  TouchableOpacity,
+  Alert,
+} from 'react-native'
 import NavigationBar, {
   friendsNavItem,
   homeNavItem,
@@ -19,12 +27,14 @@ import {
   doc,
   getDoc,
   getFirestore,
+  setDoc,
   updateDoc,
 } from '@firebase/firestore'
 import {FIREBASE_APP} from '../FirebaseConfig'
 import FastImage from 'react-native-fast-image'
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker'
 import {themeColor} from '../default-styles'
+import {queryName} from './CreateAccount_screen'
 
 const db = getFirestore(FIREBASE_APP)
 export let currentNavTarget = [0, 0]
@@ -64,6 +74,13 @@ const Profile = ({navigation}) => {
       let imageUri = response.uri || response.assets?.[0]?.uri
       setSelectedImage(imageUri)
       updateImage(response.assets?.[0]?.uri)
+      getUser()
+        .then(result => {
+          setSelectedImage(result?.imageURI)
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error)
+        })
     }
   }
 
@@ -83,7 +100,7 @@ const Profile = ({navigation}) => {
     )
   }
 
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState('')
   const [email, setEmail] = useState(null)
 
   useEffect(() => {
@@ -106,16 +123,60 @@ const Profile = ({navigation}) => {
 
   return (
     <View style={{flex: 1, backgroundColor: '#132b33'}}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Profile</Text>
-        <Image
-          source={{uri: 'data:image/png;base64,' + selectedImage}}
-          style={styles.image}
-        />
-        <Text style={styles.description}>{user}</Text>
-        <Button title='Choose from Device' onPress={openImagePicker} />
-        <Button title='Open Camera' onPress={handleCameraLaunch} />
+      <View style={{...styles.container, flex: 10}}>
+        <View
+          style={{...styles.container, flex: 1, justifyContent: 'flex-end'}}>
+          <Text style={styles.TitleText}>Profile</Text>
+        </View>
+        <View style={{...styles.container, flex: 4}}>
+          <View
+            style={
+              {
+                // shadowColor: '#000',
+                // shadowOffset: {
+                //   width: 0,
+                //   height: 0,
+                // },
+                // shadowOpacity: 0.5,
+                // shadowRadius: 5.5,
+              }
+            }>
+            <Image
+              source={{uri: 'data:image/png;base64,' + selectedImage}}
+              style={styles.image}
+            />
+          </View>
+          <Text style={styles.subTitleText}>{user}</Text>
+          <View style={{margin: 10}} />
+          <Text style={styles.bodyText}>Edit Profile Photo:</Text>
+          <TouchableOpacity style={styles.Button} onPress={openImagePicker}>
+            <Text>Choose Image from Device</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.Button} onPress={handleCameraLaunch}>
+            <Text>Use Camera</Text>
+          </TouchableOpacity>
+          <Text style={styles.bodyText}>Edit Username:</Text>
+          <TouchableOpacity
+            style={styles.Button}
+            onPress={() => {
+              Alert.prompt('Enter new username', '', async output => {
+                if (await queryName(output)) {
+                  Alert.alert('Username Already Exists')
+                  return
+                }
+                const userDocRef = doc(
+                  collection(db, 'users'),
+                  GLOBAL_EMAIL.toLowerCase(),
+                )
+                updateDoc(userDocRef, {name: output})
+                setUser(output)
+              })
+            }}>
+            <Text>Edit Username</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+      <View style={{flex: 1}} />
       <View
         style={{
           flex: 2,
@@ -135,7 +196,8 @@ const Profile = ({navigation}) => {
             onPress: () => {
               navigation.navigate('PinScreen')
             },
-          }}></NavigationBar>
+          }}
+        />
       </View>
     </View>
   )
@@ -144,34 +206,23 @@ const Profile = ({navigation}) => {
 //Styling options for this page
 const styles = StyleSheet.create({
   Button: {
-    width: '100%',
-    height: screenHeight / 11,
+    width: screenWidth / 2,
+    padding: 10,
+    margin: 5,
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    // shadowColor: '#000',
-    // shadowOffset: {
-    //   width: 4,
-    //   height: 6,
-    // },
-    // shadowOpacity: 0.5,
-    // shadowRadius: 3.5,
-  },
-  TitleText: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
-    alignContent: 'center',
-    marginLeft: screenWidth / 4,
-    flex: 1,
-    fontSize: screenHeight / 14,
-    fontWeight: 'bold',
-    color: themeColor,
+    backgroundColor: themeColor,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.5,
   },
   container: {
     flex: 5,
-    justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
@@ -184,10 +235,27 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginBottom: 10,
+    borderRadius: 360,
+    borderWidth: 3,
+    borderColor: themeColor,
   },
   description: {
     fontSize: 18,
     color: 'white',
+  },
+  TitleText: {
+    fontSize: screenHeight / 14,
+    fontWeight: 'bold',
+    color: themeColor,
+  },
+  subTitleText: {
+    fontSize: screenHeight / 22,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  bodyText: {
+    fontSize: screenHeight / 36,
+    color: '#b7b7b7',
   },
 })
 

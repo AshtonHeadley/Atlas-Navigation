@@ -15,6 +15,7 @@ import {
   FIREBASE_AUTH,
   FIREBASE_FIRESTORE,
 } from '../FirebaseConfig'
+import {backGroundColor} from '../default-styles'
 
 const FriendRequestsScreen = () => {
   const [friendRequests, setFriendRequests] = useState([] as any)
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'themeColor',
+    backgroundColor: backGroundColor,
   },
   title: {
     fontSize: 20,

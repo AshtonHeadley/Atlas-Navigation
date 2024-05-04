@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native'
@@ -46,6 +47,15 @@ const db = FIREBASE_FIRESTORE
 export let currentNavxTarget = [0, 0]
 export let currentNavTitle = ''
 
+export const setCurrentNavxTarget = (
+  title: string,
+  latitude: number,
+  longitude: number,
+) => {
+  currentNavTitle = title
+  currentNavxTarget = [latitude, longitude]
+}
+
 export const getPinCollection = (collectionName: string) => {
   const userDocRef = doc(
     collection(db, collectionName),
@@ -73,16 +83,20 @@ const deleteFunc = (
   card: any,
   setPinCardsCallback: (newCards: any[]) => void,
 ) => {
-  const cardKey = card.title
+  const cardKey = card.title + card.user
+  console.log(`Deleting PinComponenets ${card.title + card.user}`)
   pinComponents.delete(cardKey) //remove card from map using unique key to find
-  deletePinComponent(card.title, card.published)
+  deletePinComponent(card.title + card.user, card.published)
   setPinCardsCallback([...pinComponents.values()])
 }
 
 const copyPinFunc = (card: any) => {
   //document name will be email input, within the user's collection
   const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase()) //reference to document in firebase
-  const pinCollection = doc(collection(userDocRef, 'Pins'), card.title)
+  const pinCollection = doc(
+    collection(userDocRef, 'Pins'),
+    card.title + card.user,
+  )
   setDoc(pinCollection, card) //adding data to document path
 }
 
@@ -208,6 +222,8 @@ const Pins = ({navigation}) => {
   const showSearch = () => setIsSearchVisible(true)
   const hideSearch = () => setIsSearchVisible(false)
 
+  const [searchVal, setSearchVal] = useState('')
+  let keyVal = 1
   const onPressNav = ({title = '', latitude = 0, longitude = 0}) => {
     const lat = latitude
     const long = longitude
@@ -256,30 +272,35 @@ const Pins = ({navigation}) => {
         image,
       )
     }
-    pinComponents.set(inputTitle, pinCard)
+    console.log(`Setting PinComponenets ${inputTitle + user}`)
+    pinComponents.set(inputTitle + user, pinCard)
     setPinCards([...pinComponents.values()])
   }
+
+  const loadPins = async () => {
+    setLoading(true)
+    try {
+      const pins = await loadPinComponents('users') // Call loadPinComponents
+      pins.forEach(pin => {
+        handleCreatePin(
+          pin.latitude,
+          pin.longitude,
+          pin.title,
+          pin.published,
+          pin.imageURI,
+          pin.user,
+          false,
+          false,
+        )
+      })
+    } catch (e) {
+      console.error('Error loading pins:', e)
+    }
+    setLoading(false)
+  }
+
   useEffect(() => {
     if (!isSearchVisible) {
-      const loadPins = async () => {
-        try {
-          const pins = await loadPinComponents('users') // Call loadPinComponents
-          pins.forEach(pin => {
-            handleCreatePin(
-              pin.latitude,
-              pin.longitude,
-              pin.title,
-              pin.published,
-              pin.imageURI,
-              pin.user,
-              false,
-              false,
-            )
-          })
-        } catch (e) {
-          console.error('Error loading pins:', e)
-        }
-      }
       loadPins()
     }
     return
@@ -323,7 +344,10 @@ const Pins = ({navigation}) => {
         collection(db, 'users'),
         GLOBAL_EMAIL.toLowerCase(),
       ) //reference to document in firebase
-      const pinCollection = doc(collection(userDocRef, 'Pins'), title)
+      const pinCollection = doc(
+        collection(userDocRef, 'Pins'),
+        title + GLOBAL_USERNAME,
+      )
       await setDoc(pinCollection, data) //adding data to document path
     } catch (error) {
       console.error('Error adding data to user:', error)
@@ -347,7 +371,7 @@ const Pins = ({navigation}) => {
     image: string,
     isEnabled: boolean,
   ) => {
-    if (pinComponents.has(inputTitle)) {
+    if (pinComponents.has(inputTitle + GLOBAL_USERNAME)) {
       Alert.alert('Pin with that title already exists')
       return
     }
@@ -411,8 +435,8 @@ const Pins = ({navigation}) => {
               showSearch()
             }}>
             <FastImage
-              source={require('../assets/magnifying-glass.png')}
-              style={{width: 24, height: 24}}
+              source={require('../assets/global.png')}
+              style={{width: 40, height: 40}}
             />
           </TouchableOpacity>
         </View>
@@ -428,6 +452,25 @@ const Pins = ({navigation}) => {
               marginHorizontal: screenWidth / 12,
               marginVertical: 5,
             }}>
+            <TextInput
+              placeholderTextColor={'#d9d9d9'}
+              placeholder='Search'
+              style={styles.input}
+              value={searchVal}
+              onChangeText={(input: string) => {
+                setSearchVal(input)
+                if (input != '') {
+                  const filteredCards = pinCards.filter(card =>
+                    card.props.text.title
+                      .toLowerCase()
+                      .includes(input.toLowerCase()),
+                  )
+                  setPinCards(filteredCards)
+                } else {
+                  setPinCards([...pinComponents.values()])
+                }
+              }}
+            />
             {loading ? (
               <View style={{height: screenHeight / 11}}>
                 <ActivityIndicator size={'large'} color='grey' />
@@ -453,17 +496,15 @@ const Pins = ({navigation}) => {
         </View>
       </View>
       <View
-        style={{flex: 4, marginVertical: 10}} //list of pin cards
+        style={{flex: 3}} //list of pin cards
       >
         <View style={{justifyContent: 'center', alignItems: 'center'}}>
           <ScrollView
             contentContainerStyle={{
               flexGrow: 1,
-              // justifyContent: 'center',
-              // alignItems: 'center',
             }}>
             {pinCards.map(item => (
-              <View key={item.key} style={{alignSelf: 'center'}}>
+              <View key={++keyVal} style={{alignSelf: 'center'}}>
                 {item}
               </View>
             ))}
@@ -488,7 +529,7 @@ const Pins = ({navigation}) => {
           rightItem={{
             ...profileNavItem,
             onPress: () => {
-              handleExit()
+              // handleExit()
               navigation.navigate('Profile')
             },
           }}></NavigationBar>
@@ -517,6 +558,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignContent: 'center',
+  },
+  input: {
+    width: '100%',
+    height: screenHeight / 22,
+    borderWidth: 1.5,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    borderColor: 'white',
+    color: 'white',
+    alignSelf: 'center',
+    marginTop: 5,
   },
 })
 

@@ -2,15 +2,17 @@ import React, {useState} from 'react'
 import ImageResizer from '@bam.tech/react-native-image-resizer'
 import RNFS from 'react-native-fs'
 import {
+  Button,
   Modal,
   StyleSheet,
   Switch,
   Text,
   TextInput,
   TouchableHighlight,
+  TouchableOpacity,
   View,
 } from 'react-native'
-import {screenHeight} from '../Home_Page'
+import {screenHeight, screenWidth} from '../Home_Page'
 import {Alert} from 'react-native'
 import {backGroundColor, themeColor} from '../../default-styles'
 import {
@@ -143,13 +145,23 @@ const PinOverlayInput = ({
               </Text>
             </View>
             <Switch
+              style={{margin: 5}}
               trackColor={{false: backGroundColor, true: backGroundColor}}
               thumbColor={isEnabled ? '#f4f3f4' : '#f4f3f4'}
               onValueChange={toggleSwitch}
               value={isEnabled}
             />
           </View>
-          <Button title='Add Image' onPress={handleImage} />
+          <TouchableOpacity
+            style={{
+              ...styles.button,
+              borderWidth: 1.5,
+              borderColor: 'black',
+              paddingHorizontal: 50,
+            }}
+            onPress={handleImage}>
+            <Text>Add Image?</Text>
+          </TouchableOpacity>
           <View
             style={{
               flexDirection: 'row',
@@ -166,7 +178,7 @@ const PinOverlayInput = ({
               {...{...touchProps, underlayColor: 'lime'}}
               style={{
                 ...styles.button,
-                borderWidth: 2,
+                borderWidth: 1.5,
                 borderColor: 'black',
               }}
               onPress={handleSubmit}>
@@ -211,6 +223,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     shadowColor: 'red',
+  },
+  addImageButton: {
+    width: screenWidth / 2,
+    padding: 10,
+    margin: 5,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: themeColor,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.5,
   },
   btnNormal: {
     borderColor: 'red',

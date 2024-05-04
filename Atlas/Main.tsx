@@ -10,6 +10,7 @@ import {PERSISTENT_AUTH} from './FirebaseConfig'
 import Profile from './Screens/Profile'
 import FriendsScreen from './Screens/FriendsScreen'
 import FriendRequestsScreen from './Screens/FriendRequestsScreen'
+import PublicPins from './Screens/components/PublicPins'
 
 const Stack = createNativeStackNavigator()
 
@@ -23,13 +24,19 @@ const Main = () => {
   }, [])
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          animation: 'fade',
+          animationDuration: 500,
+        }}>
         {loggedIn ? (
           <Stack.Screen name='HomeScreen' component={Home} />
         ) : (
           <Stack.Screen name='LoginScreen' component={LoginScreen} />
         )}
         <Stack.Screen name='CreateAccount' component={CreateAccount} />
+        <Stack.Screen name='Login' component={LoginScreen} />
         <Stack.Screen name='PinScreen' component={Pins} />
         <Stack.Screen name='Compass' component={CompassPage} />
         <Stack.Screen name='Friends' component={FriendsScreen} />
