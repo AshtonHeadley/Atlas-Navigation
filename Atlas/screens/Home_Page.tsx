@@ -1,7 +1,7 @@
 /*
 "https://www.flaticon.com/authors/those-icons" title="Those Icons"> Those Icons </a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com'
 */
-import {signOut} from '@firebase/auth'
+import { signOut } from '@firebase/auth';
 import {
   Alert,
   Dimensions,
@@ -9,54 +9,54 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native'
+} from 'react-native';
 import {
   FIREBASE_APP,
   FIREBASE_AUTH,
   FIREBASE_DATABASE,
   FIREBASE_FIRESTORE,
   PERSISTENT_AUTH,
-} from '../FirebaseConfig'
-import React, {useEffect} from 'react'
-import {collection, doc, getDoc, getFirestore} from '@firebase/firestore'
-import FastImage from 'react-native-fast-image'
-import {backGroundColor, themeColor} from '../default-styles'
+} from '../FirebaseConfig';
+import React, { useEffect } from 'react';
+import { collection, doc, getDoc, getFirestore } from '@firebase/firestore';
+import FastImage from 'react-native-fast-image';
+import { backGroundColor, themeColor } from '../default-styles';
 
-export const screenWidth = Dimensions.get('window').width
-export const screenHeight = Dimensions.get('window').height
-export const pinComponents = new Map()
-export let GLOBAL_EMAIL = ''
-export let GLOBAL_USERNAME = ''
+export const screenWidth = Dimensions.get('window').width;
+export const screenHeight = Dimensions.get('window').height;
+export const pinComponents = new Map();
+export let GLOBAL_EMAIL = '';
+export let GLOBAL_USERNAME = '';
 
 export const GET_USERNAME = async () => {
   const userDocRef = doc(
     collection(getFirestore(FIREBASE_APP), 'users'),
     GLOBAL_EMAIL.toLowerCase(),
-  )
-  const userDoc = await getDoc(userDocRef)
-  const userData = userDoc.data()
+  );
+  const userDoc = await getDoc(userDocRef);
+  const userData = userDoc.data();
   if (userData) {
-    GLOBAL_USERNAME = userData.name
+    GLOBAL_USERNAME = userData.name;
   }
-}
+};
 
-const HomePage = ({navigation}) => {
-  const db = getFirestore(FIREBASE_APP)
+const HomePage = ({ navigation }) => {
+  const db = getFirestore(FIREBASE_APP);
   GLOBAL_EMAIL = PERSISTENT_AUTH.currentUser?.email
     ? PERSISTENT_AUTH.currentUser?.email
-    : ''
-  console.log(GLOBAL_EMAIL)
-  const auth = FIREBASE_AUTH
+    : '';
+  console.log(GLOBAL_EMAIL);
+  const auth = FIREBASE_AUTH;
 
   useEffect(() => {
-    GET_USERNAME()
-    console.log(GLOBAL_USERNAME)
-  }, [])
+    GET_USERNAME();
+    console.log(GLOBAL_USERNAME);
+  }, []);
 
   return (
     //Screen with 3 buttons
-    <View style={{flex: 1, backgroundColor: backGroundColor}}>
-      <View style={{flex: 1}}>
+    <View style={{ flex: 1, backgroundColor: backGroundColor }}>
+      <View style={{ flex: 1 }}>
         <View
           style={{
             flex: 10,
@@ -68,22 +68,22 @@ const HomePage = ({navigation}) => {
               style={styles.SignOut}
               onPress={async () => {
                 try {
-                  await signOut(PERSISTENT_AUTH)
-                  console.log('signed out successfully')
-                  navigation.navigate('LoginScreen')
+                  await signOut(PERSISTENT_AUTH);
+                  console.log('signed out successfully');
+                  navigation.navigate('LoginScreen');
                 } catch (error) {
-                  console.error('Error signing out:', error)
-                  Alert.alert('An error occurred while signing out.')
+                  console.error('Error signing out:', error);
+                  Alert.alert('An error occurred while signing out.');
                 }
               }}>
               <FastImage
                 source={require('../assets/menu.png')}
-                style={{width: 40, height: 40}}
+                style={{ width: 40, height: 40 }}
               />
             </TouchableOpacity>
           </View>
         </View>
-        <View style={{flex: 2}}></View>
+        <View style={{ flex: 2 }}></View>
       </View>
       <View
         style={{
@@ -94,7 +94,7 @@ const HomePage = ({navigation}) => {
         <View>
           <TouchableOpacity
             onPress={async () => {
-              navigation.navigate('PinScreen')
+              navigation.navigate('PinScreen');
             }}
             style={{
               ...styles.Button,
@@ -102,18 +102,21 @@ const HomePage = ({navigation}) => {
             }}>
             <FastImage
               source={require('../assets/pin.png')}
-              style={{width: 128, height: 128}}
+              style={{ width: 128, height: 128 }}
             />
             <Text style={styles.text}>Pins</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Friends');
+            }}
             style={{
               ...styles.Button,
               backgroundColor: themeColor,
             }}>
             <FastImage
               source={require('../assets/multiple-users-silhouette.png')}
-              style={{width: 128, height: 128}}
+              style={{ width: 128, height: 128 }}
             />
             <Text style={styles.text}>Friends</Text>
           </TouchableOpacity>
@@ -124,15 +127,15 @@ const HomePage = ({navigation}) => {
             }}>
             <FastImage
               source={require('../assets/profile-user.png')}
-              style={{width: 128, height: 128}}
+              style={{ width: 128, height: 128 }}
             />
             <Text style={styles.text}>Profile</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
-  )
-}
+  );
+};
 
 // styling options
 const styles = StyleSheet.create({
@@ -191,6 +194,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '200',
   },
-})
+});
 
-export default HomePage
+export default HomePage;
