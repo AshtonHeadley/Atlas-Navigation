@@ -10,11 +10,36 @@ import {
 import {backGroundColor, themeColor} from '../../default-styles'
 import {GLOBAL_EMAIL, screenHeight, screenWidth} from '../Home_Page'
 import PinCard from './pin_card'
-import {createPinCard, loadPinComponents} from '../Pins'
+import {
+  createPinCard,
+  deletePinComponent,
+  getPinCollection,
+  loadPinComponents,
+} from '../Pins'
 import {useEffect, useState} from 'react'
-import {getDocs, collection, getFirestore} from '@firebase/firestore'
+import {
+  getDocs,
+  collection,
+  getFirestore,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from '@firebase/firestore'
 import {FIREBASE_APP} from '../../FirebaseConfig'
 
+const queryEmail = async (name: string) => {
+  const db = getFirestore(FIREBASE_APP)
+  try {
+    const friendRequestsCollection = collection(db, 'users')
+    const q = query(friendRequestsCollection, where('name', '==', name))
+    const querySnapshot = await getDocs(q)
+    const docs = querySnapshot.docs.map(doc => doc.data())
+    return docs[0].email
+  } catch (err) {
+    console.error(err)
+  }
+}
 const PublicPins = ({isVisible = false, onSubmit}) => {
   const db = getFirestore(FIREBASE_APP)
   const [pinCards, setPinCards] = useState([] as any)
@@ -28,6 +53,8 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
     inputTitle: string,
     user: string,
     image = '',
+    dateSet: boolean,
+    date: Date,
   ) => {
     const specialNum = Math.random()
     const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
@@ -43,6 +70,8 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
       user,
       true,
       true,
+      dateSet,
+      date,
     )
     pinList.push(pinCard)
   }
@@ -54,19 +83,63 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
           const pins = await (
             await getDocs(collection(db, 'PublicPins'))
           ).docs.map(doc => doc.data()) // Call loadPinComponents
+
           pins.forEach(async pin => {
-            await handleCreatePin(
-              pin.latitude,
-              pin.longitude,
-              pin.title,
-              pin.user,
-              pin.imageURI,
-            )
-            setPinCards([...pinList])
-            setRenderList([...pinList])
+            const currentDate = new Date()
+
+            if (pin.dateSet && pin.terminationDate) {
+              // Convert terminationDate to a Date object
+              const terminationDateSeconds = pin.terminationDate.seconds
+              const terminationDateNanoseconds = pin.terminationDate.nanoseconds
+              const terminationDate = new Date(
+                terminationDateSeconds * 1000 +
+                  terminationDateNanoseconds / 1e6,
+              )
+
+              // Convert terminationDate to the local timezone
+              const localTerminationDate = new Date(
+                terminationDate.getTime() -
+                  terminationDate.getTimezoneOffset() * 60 * 1000,
+              )
+
+              // Compare current date with localTerminationDate
+              if (currentDate > localTerminationDate) {
+                // Pin needs to be terminated, skip handleCreatePin
+                console.log(
+                  `Skipping public pin "${pin.title}" as it has expired.`,
+                )
+                deletePinComponent(
+                  pin.title,
+                  pin.user,
+                  pin.published,
+                  await queryEmail(pin.user),
+                )
+              } else {
+                handleCreatePin(
+                  pin.latitude,
+                  pin.longitude,
+                  pin.title,
+                  pin.imageURI,
+                  pin.user,
+                  pin.dateSet,
+                  pin.terminationDate,
+                )
+              }
+            } else {
+              // No termination date set, create the pin
+              handleCreatePin(
+                pin.latitude,
+                pin.longitude,
+                pin.title,
+                pin.imageURI,
+                pin.user,
+                pin.dateSet,
+                pin.terminationDate,
+              )
+            }
           })
         } catch (e) {
-          console.error('Error loading pins:', e)
+          console.error('Error loading public pins:', e)
         }
       }
       loadPins()

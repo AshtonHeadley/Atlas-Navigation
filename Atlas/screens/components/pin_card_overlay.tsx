@@ -20,6 +20,8 @@ import {
   launchCamera,
   ImageLibraryOptions,
 } from 'react-native-image-picker'
+import DatePicker from 'react-native-date-picker'
+// import Date from 'react-native-date-picker'
 
 const PinOverlayInput = ({
   isVisible = false,
@@ -32,6 +34,9 @@ const PinOverlayInput = ({
   const [isEnabled, setIsEnabled] = useState(false)
   const toggleSwitch = () => setIsEnabled(previousState => !previousState)
   const [image, setImage] = useState('')
+  const [settingDate, toggleSettingDate] = useState(false)
+  const [date, setDate] = useState(new Date())
+  const [dateSelected, setDateSelected] = useState(false)
 
   const touchProps = {
     activeOpacity: 1,
@@ -45,6 +50,7 @@ const PinOverlayInput = ({
   const handleCancel = () => {
     setTitle('')
     setImage('')
+    setDate(new Date())
     onCancel()
   }
   const handleSubmit = () => {
@@ -52,9 +58,10 @@ const PinOverlayInput = ({
       Alert.alert('Enter a title')
       return
     }
-    onSubmit(title, image, isEnabled)
+    onSubmit(title, image, isEnabled, dateSelected, date)
     setTitle('')
     setImage('')
+    setDate(new Date())
   }
 
   const imgOptions: ImageLibraryOptions = {
@@ -118,7 +125,7 @@ const PinOverlayInput = ({
         }}>
         <View
           style={{
-            height: '40%',
+            height: '50%',
             width: '90%',
             position: 'absolute',
             backgroundColor: themeColor,
@@ -152,6 +159,31 @@ const PinOverlayInput = ({
               value={isEnabled}
             />
           </View>
+          <TouchableOpacity
+            style={{
+              ...styles.button,
+              borderWidth: 1.5,
+              borderColor: 'black',
+              paddingHorizontal: 50,
+              marginBottom: 10,
+            }}
+            onPress={toggleSettingDate.bind(null, true)}>
+            <Text>Set Duration?</Text>
+          </TouchableOpacity>
+          <DatePicker
+            modal
+            open={settingDate}
+            date={date}
+            onConfirm={date => {
+              toggleSettingDate(false)
+              setDate(date)
+              setDateSelected(true)
+            }}
+            onCancel={() => {
+              toggleSettingDate(false)
+              console.log(date)
+            }}
+          />
           <TouchableOpacity
             style={{
               ...styles.button,

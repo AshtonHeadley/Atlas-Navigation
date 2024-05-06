@@ -155,7 +155,7 @@ const Profile = ({navigation}) => {
           <TouchableOpacity style={styles.Button} onPress={handleCameraLaunch}>
             <Text>Use Camera</Text>
           </TouchableOpacity>
-          <Text style={styles.bodyText}>Edit Username:</Text>
+          {/* <Text style={styles.bodyText}>Edit Username:</Text>
           <TouchableOpacity
             style={styles.Button}
             onPress={() => {
@@ -173,7 +173,7 @@ const Profile = ({navigation}) => {
               })
             }}>
             <Text>Edit Username</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
       <View style={{flex: 1}} />

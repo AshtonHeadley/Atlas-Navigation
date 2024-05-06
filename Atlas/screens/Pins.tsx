@@ -71,11 +71,16 @@ export const loadPinComponents = async (collectionName: string) => {
   return docs
 }
 
-const deletePinComponent = async (title: string, published: boolean) => {
-  const docToRemove = doc(getPinCollection('users'), title)
+export const deletePinComponent = async (
+  title: string,
+  user: string,
+  published: boolean,
+  email = GLOBAL_EMAIL,
+) => {
+  const docToRemove = doc(getPinCollection('users'), title + user)
   await deleteDoc(docToRemove)
   if (published) {
-    deleteDoc(doc(collection(db, 'PublicPins'), title + GLOBAL_EMAIL))
+    deleteDoc(doc(collection(db, 'PublicPins'), title + email))
   }
 }
 
@@ -86,7 +91,7 @@ const deleteFunc = (
   const cardKey = card.title + card.user
   console.log(`Deleting PinComponenets ${card.title + card.user}`)
   pinComponents.delete(cardKey) //remove card from map using unique key to find
-  deletePinComponent(card.title + card.user, card.published)
+  deletePinComponent(card.title, card.user, card.published)
   setPinCardsCallback([...pinComponents.values()])
 }
 
@@ -112,9 +117,10 @@ export const createPinCard = (
   user: string,
   published = false,
   addPin = false,
+  dateSet: boolean,
+  date: Date,
 ) => {
   const card = {
-    //card data object
     title: `${inputTitle}`,
     description: `${latitude}, ${longitude}`,
     coordinates: {
@@ -125,6 +131,8 @@ export const createPinCard = (
     published: published,
     user: user,
     imageURI: image,
+    dateSet: dateSet,
+    date: dateSet ? date.toLocaleString() : '', // Convert date to string if dateSet is true
   }
   //function passed into every card's delete button
   const func = {
@@ -144,6 +152,8 @@ export const createPinCard = (
       addPin={addPin}
       onPressAdd={func2.onPressAdd}
       creator={user}
+      dateSet={dateSet}
+      date={dateSet ? date.toLocaleString() : ''}
     />
   )
 }
@@ -241,6 +251,8 @@ const Pins = ({navigation}) => {
     user: string,
     addPin = false,
     newPin = true,
+    dateSet: boolean,
+    date: Date,
   ) => {
     const specialNum = Math.random()
     const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
@@ -260,6 +272,8 @@ const Pins = ({navigation}) => {
       user,
       isPublished,
       addPin,
+      dateSet,
+      date,
     )
     if (newPin) {
       await addPinToDB(
@@ -270,9 +284,10 @@ const Pins = ({navigation}) => {
         key,
         isPublished,
         image,
+        dateSet,
+        date,
       )
     }
-    console.log(`Setting PinComponenets ${inputTitle + user}`)
     pinComponents.set(inputTitle + user, pinCard)
     setPinCards([...pinComponents.values()])
   }
@@ -281,17 +296,45 @@ const Pins = ({navigation}) => {
     setLoading(true)
     try {
       const pins = await loadPinComponents('users') // Call loadPinComponents
+      const currentDate = new Date()
+
       pins.forEach(pin => {
-        handleCreatePin(
-          pin.latitude,
-          pin.longitude,
-          pin.title,
-          pin.published,
-          pin.imageURI,
-          pin.user,
-          false,
-          false,
-        )
+        if (pin.dateSet && pin.terminationDate) {
+          const terminationDate = new Date(pin.terminationDate.seconds * 1000)
+          if (currentDate > terminationDate) {
+            console.log(
+              `Skipping pin "${pin.title}" as it has expired. Removing Pin from database`,
+              deletePinComponent(pin.title, pin.user, pin.published),
+            )
+          } else {
+            handleCreatePin(
+              pin.latitude,
+              pin.longitude,
+              pin.title,
+              pin.published,
+              pin.imageURI,
+              pin.user,
+              false,
+              false,
+              pin.dateSet,
+              pin.terminationDate,
+            )
+          }
+        } else {
+          // No termination date set, create the pin
+          handleCreatePin(
+            pin.latitude,
+            pin.longitude,
+            pin.title,
+            pin.published,
+            pin.imageURI,
+            pin.user,
+            false,
+            false,
+            pin.dateSet,
+            pin.terminationDate,
+          )
+        }
       })
     } catch (e) {
       console.error('Error loading pins:', e)
@@ -310,8 +353,10 @@ const Pins = ({navigation}) => {
     title: any,
     image: string,
     isEnabled: boolean,
+    dateSet = false,
+    date: Date,
   ) => {
-    await getLocation(title, image, isEnabled)
+    await getLocation(title, image, isEnabled, dateSet, date)
     hideOverlay()
   }
 
@@ -327,6 +372,8 @@ const Pins = ({navigation}) => {
     key: number,
     published = false,
     imageURI = '',
+    dateSet: boolean,
+    date: Date,
   ) => {
     const data = {
       title: title,
@@ -337,6 +384,8 @@ const Pins = ({navigation}) => {
       user: GLOBAL_USERNAME,
       published,
       imageURI,
+      dateSet,
+      terminationDate: date,
     }
     try {
       //document name will be email input, within the user's collection
@@ -370,6 +419,8 @@ const Pins = ({navigation}) => {
     inputTitle: string,
     image: string,
     isEnabled: boolean,
+    dateSet: boolean,
+    date: Date,
   ) => {
     if (pinComponents.has(inputTitle + GLOBAL_USERNAME)) {
       Alert.alert('Pin with that title already exists')
@@ -390,6 +441,8 @@ const Pins = ({navigation}) => {
             GLOBAL_USERNAME,
             false,
             true,
+            dateSet,
+            date,
           )
           setLoading(false)
         },
