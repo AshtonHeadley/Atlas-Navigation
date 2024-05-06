@@ -1,41 +1,48 @@
-import React, {lazy, useEffect, useState} from 'react'
-import {NavigationContainer} from '@react-navigation/native'
-import {createNativeStackNavigator} from '@react-navigation/native-stack'
-import LoginScreen from './Screens/Login_Screen'
-import CreateAccount from './Screens/CreateAccount_screen'
-import CompassPage from './Screens/Navigation'
-import Pins from './Screens/LazyLoadScreens/LazyPins'
-import Home from './Screens/LazyLoadScreens/LazyHome'
-import {PERSISTENT_AUTH} from './FirebaseConfig'
-import FriendsScreen from './Screens/FriendsScreen'
-import FriendRequestsScreen from './Screens/FriendRequestsScreen'
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import LoginScreen from './screens/Login_Screen';
+import CreateAccount from './screens/CreateAccount_screen';
+import CompassPage from './screens/Navigation';
+import Pins from './screens/LazyLoadScreens/LazyPins';
+import Home from './screens/LazyLoadScreens/LazyHome';
+import { PERSISTENT_AUTH } from './FirebaseConfig';
+import Profile from './screens/Profile';
+import FriendsScreen from './screens/FriendsScreen';
+import FriendRequestsScreen from './screens/FriendRequestsScreen';
+import AddFriendScreen from './screens/AddFriendScreen';
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator();
 
 const Main = () => {
-  const [loggedIn, setIsLoggedIn] = useState(false)
+  const [loggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
     const unsubscribe = PERSISTENT_AUTH.onAuthStateChanged(user => {
-      setIsLoggedIn(!!user) // Check if a user object exists
-    })
-    return unsubscribe
-  }, [])
+      setIsLoggedIn(!!user); // Check if a user object exists
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
-        {loggedIn ? (
-          <Stack.Screen name='HomeScreen' component={Home} />
-        ) : (
-          <Stack.Screen name='LoginScreen' component={LoginScreen} />
-        )}
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name='CreateAccount' component={CreateAccount} />
-        <Stack.Screen name='PinScreen' component={Pins} />
-        <Stack.Screen name='Compass' component={CompassPage} />
-        <Stack.Screen name='FriendsScreen' component={FriendsScreen} />
-        <Stack.Screen name='FriendRequestsScreen' component={FriendRequestsScreen} />
+        {loggedIn ? (
+          <>
+            <Stack.Screen name='HomeScreen' component={Home} />
+            <Stack.Screen name='PinScreen' component={Pins} />
+            <Stack.Screen name='Compass' component={CompassPage} />
+            <Stack.Screen name='Friends' component={FriendsScreen} />
+            <Stack.Screen name='Profile' component={Profile} />
+            <Stack.Screen name='FriendRequests' component={FriendRequestsScreen} />
+            <Stack.Screen name='AddFriend' component={AddFriendScreen} />
+          </>
+        ) : null}
       </Stack.Navigator>
     </NavigationContainer>
-  )
-}
+  );
+};
 
-export default Main
+export default Main;
