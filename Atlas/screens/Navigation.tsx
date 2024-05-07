@@ -126,7 +126,17 @@ const CompassPage = ({navigation}) => {
             alignItems: 'center',
           }}>
           <View>
-            <Text style={styles.TitleText}>{currentNavTitle}</Text>
+            <Text
+              style={{
+                ...styles.TitleText,
+                fontSize:
+                  currentNavTitle.length < 13
+                    ? screenWidth / 8
+                    : screenWidth / 14,
+                flex: currentNavTitle.length < 13 ? 1 : 0,
+              }}>
+              {currentNavTitle}
+            </Text>
           </View>
         </View>
       </View>
@@ -211,8 +221,6 @@ const styles = StyleSheet.create({
   TitleText: {
     justifyContent: 'center',
     alignContent: 'center',
-    flex: 1,
-    fontSize: screenWidth / 8,
     fontWeight: 'bold',
     color: themeColor,
   },

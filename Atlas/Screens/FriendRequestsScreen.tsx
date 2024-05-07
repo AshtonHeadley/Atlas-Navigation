@@ -1,6 +1,13 @@
-// FriendRequestsScreen.js
 import React, {useState, useEffect} from 'react'
-import {View, Text, Button, StyleSheet} from 'react-native'
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native'
 import {
   collection,
   query,
@@ -9,16 +16,19 @@ import {
   updateDoc,
   deleteDoc,
   addDoc,
+  doc,
 } from '@firebase/firestore'
 import {
   FIREBASE_APP,
   FIREBASE_AUTH,
   FIREBASE_FIRESTORE,
 } from '../FirebaseConfig'
-import {backGroundColor} from '../default-styles'
+import {backGroundColor, themeColor} from '../default-styles'
+import {screenHeight, screenWidth} from './Home_Page'
+// import Icon from 'react-native-vector-icons/FontAwesome';
 
-const FriendRequestsScreen = () => {
-  const [friendRequests, setFriendRequests] = useState([] as any)
+const FriendRequestsScreen = ({navigation}) => {
+  const [friendRequests, setFriendRequests] = useState([])
 
   useEffect(() => {
     const fetchFriendRequests = async () => {
@@ -59,50 +69,46 @@ const FriendRequestsScreen = () => {
   }, [])
 
   const handleAllowFriendRequest = async (
-    requestId: any,
-    friendEmail: unknown,
-    friendName: any,
+    requestId,
+    friendEmail,
+    friendName,
   ) => {
     try {
       const db = FIREBASE_FIRESTORE
       const currentUserEmail = FIREBASE_AUTH.currentUser?.email
-
-      // Get the current user's document
       const currentUserDoc = await getDocs(
         query(collection(db, 'users'), where('email', '==', currentUserEmail)),
       )
+
       if (!currentUserDoc.empty) {
         const currentUserId = currentUserDoc.docs[0].id
+        const currentUserName = currentUserDoc.docs[0].data().name
 
-        // Update the friend request status to "accepted"
-        const friendRequestDoc = await getDocs(
-          query(
-            collection(db, 'users', currentUserId, 'PublicPins'),
-            where('email', '==', friendEmail),
-          ),
+        // Find the friend's user document
+        const friendDoc = await getDocs(
+          query(collection(db, 'users'), where('email', '==', friendEmail)),
         )
-        if (!friendRequestDoc.empty) {
-          const requestDocId = friendRequestDoc.docs[0].id
-          await updateDoc(friendRequestDoc.docs[0].ref, {status: 'accepted'})
+        if (!friendDoc.empty) {
+          const friendId = friendDoc.docs[0].id
+          const friendUserName = friendDoc.docs[0].data().name
 
-          // Create a new document in the "friends" subcollection
-          const friendsCollection = collection(
-            db,
-            'users',
-            currentUserId,
-            'friends',
-          )
-          await addDoc(friendsCollection, {
+          // Add friend to current user's 'friends' subcollection
+          await addDoc(collection(db, 'users', currentUserId, 'friends'), {
             email: friendEmail,
-            name: friendName,
+            name: friendUserName,
           })
 
-          // Remove the friend request from the state
-          setFriendRequests((prevRequests: any[]) =>
-            prevRequests.filter(
-              (request: {id: any}) => request.id !== requestId,
-            ),
+          // Add current user to friend's 'friends' subcollection
+          await addDoc(collection(db, 'users', friendId, 'friends'), {
+            email: currentUserEmail,
+            name: currentUserName,
+          })
+
+          // Optionally clean up the friend request
+          await deleteDoc(
+            doc(db, 'users', currentUserId, 'PublicPins', requestId),
           )
+          setFriendRequests(prev => prev.filter(req => req.id !== requestId))
         }
       }
     } catch (error) {
@@ -110,10 +116,7 @@ const FriendRequestsScreen = () => {
     }
   }
 
-  const handleDenyFriendRequest = async (
-    requestId: any,
-    friendEmail: unknown,
-  ) => {
+  const handleDenyFriendRequest = async (requestId, friendEmail) => {
     try {
       const db = FIREBASE_FIRESTORE
       const currentUserEmail = FIREBASE_AUTH.currentUser?.email
@@ -136,11 +139,12 @@ const FriendRequestsScreen = () => {
           await deleteDoc(friendRequestDoc.docs[0].ref)
 
           // Remove the friend request from the state
-          setFriendRequests((prevRequests: any[]) =>
-            prevRequests.filter(
-              (request: {id: any}) => request.id !== requestId,
-            ),
+          setFriendRequests(prevRequests =>
+            prevRequests.filter(request => request.id !== requestId),
           )
+
+          // Navigate back to the FriendsList screen
+          navigation.navigate('Friends')
         }
       }
     } catch (error) {
@@ -150,54 +154,61 @@ const FriendRequestsScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={{flex: 0.3}} />
       <Text style={styles.title}>Friend Requests</Text>
-      {friendRequests.map(
-        (request: {
-          id: React.Key | null | undefined
-          name:
-            | string
-            | number
-            | boolean
-            | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-            | Iterable<React.ReactNode>
-            | React.ReactPortal
-            | null
-            | undefined
-          email:
-            | string
-            | number
-            | boolean
-            | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-            | Iterable<React.ReactNode>
-            | React.ReactPortal
-            | null
-            | undefined
-        }) => (
-          <View key={request.id} style={styles.requestItem}>
-            <Text>
-              {request.name} ({request.email})
-            </Text>
-            <View style={styles.buttonContainer}>
-              <Button
-                title='Allow'
-                onPress={() =>
-                  handleAllowFriendRequest(
-                    request.id,
-                    request.email,
-                    request.name,
-                  )
-                }
-              />
-              <Button
-                title='Deny'
-                onPress={() =>
-                  handleDenyFriendRequest(request.id, request.email)
-                }
-              />
+      {friendRequests.length === 0 ? (
+        <Text style={styles.noRequests}>
+          You have no friend requests at this moment
+        </Text>
+      ) : (
+        <ScrollView>
+          {friendRequests.map(request => (
+            <View key={request.id} style={styles.requestItem}>
+              <View style={styles.textContainer}>
+                <Text style={styles.text}>
+                  {request.name} ({request.email})
+                </Text>
+              </View>
+              <View style={styles.buttonContainer}>
+                <Button
+                  title='Allow'
+                  color={themeColor}
+                  onPress={() =>
+                    handleAllowFriendRequest(
+                      request.id,
+                      request.email,
+                      request.name,
+                    )
+                  }
+                />
+                <Button
+                  title='Deny'
+                  color={themeColor}
+                  onPress={() =>
+                    handleDenyFriendRequest(request.id, request.email)
+                  }
+                />
+              </View>
             </View>
-          </View>
-        ),
+          ))}
+        </ScrollView>
       )}
+      <View style={{flex: 1}} />
+      <View style={{alignItems: 'center'}}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            navigation.navigate('Friends')
+          }}>
+          <Text
+            style={{
+              fontSize: screenWidth / 20,
+              color: 'white',
+            }}>
+            Back
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
@@ -207,22 +218,68 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: backGroundColor,
+    alignItems: 'center',
+  },
+  bottomNavigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    paddingVertical: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  backButton: {
+    width: '80%',
+    minWidth: screenWidth * 0.8,
+    height: screenHeight / 11,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: themeColor,
+  },
+  navButton: {
+    alignItems: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 20,
+    color: themeColor,
+    flex: 1,
+    justifyContent: 'center',
   },
   requestItem: {
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingBottom: 10,
+    borderBottomColor: themeColor,
+    paddingBottom: 20,
+  },
+  textContainer: {
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  text: {
+    color: 'black',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 10,
+  },
+  noRequests: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 20,
+    color: 'white',
+    padding: 10,
+    borderRadius: 15,
   },
 })
 

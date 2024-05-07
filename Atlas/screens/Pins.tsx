@@ -97,12 +97,31 @@ const deleteFunc = (
 
 const copyPinFunc = (card: any) => {
   //document name will be email input, within the user's collection
+  if (card.user === GLOBAL_USERNAME) {
+    Alert.alert('You cannot add your own pin!')
+    return
+  }
   const userDocRef = doc(collection(db, 'users'), GLOBAL_EMAIL.toLowerCase()) //reference to document in firebase
+  console.log(card.user)
   const pinCollection = doc(
     collection(userDocRef, 'Pins'),
     card.title + card.user,
   )
-  setDoc(pinCollection, card) //adding data to document path
+  const newCard = {
+    title: `${card.title}`,
+    description: `${card.coordinates.lat}, ${card.coordinates.long}`,
+    coordinates: {
+      lat: card.coordinates.lat,
+      long: card.coordinates.long,
+      specialNum: card.coordinates.specialNum,
+    },
+    published: card.published,
+    user: card.user,
+    imageURI: card.imageURI,
+    dateSet: false,
+    date: '',
+  }
+  setDoc(pinCollection, newCard) //adding data to document path
 }
 
 export const createPinCard = (
@@ -469,7 +488,7 @@ const Pins = ({navigation}) => {
       <PublicPins isVisible={isSearchVisible} onSubmit={handleSearchSubmit} />
       <View //top section, title and add pin button
         style={{
-          flex: 1.7,
+          flex: 2,
           justifyContent: 'flex-end',
         }}>
         <View
@@ -513,10 +532,14 @@ const Pins = ({navigation}) => {
               onChangeText={(input: string) => {
                 setSearchVal(input)
                 if (input != '') {
-                  const filteredCards = pinCards.filter(card =>
-                    card.props.text.title
-                      .toLowerCase()
-                      .includes(input.toLowerCase()),
+                  const filteredCards = pinCards.filter(
+                    card =>
+                      card.props.text.title
+                        .toLowerCase()
+                        .includes(input.toLowerCase()) ||
+                      card.props.text.user
+                        .toLowerCase()
+                        .includes(input.toLowerCase()),
                   )
                   setPinCards(filteredCards)
                 } else {
@@ -549,7 +572,7 @@ const Pins = ({navigation}) => {
         </View>
       </View>
       <View
-        style={{flex: 3}} //list of pin cards
+        style={{flex: 3.5}} //list of pin cards
       >
         <View style={{justifyContent: 'center', alignItems: 'center'}}>
           <ScrollView
@@ -578,6 +601,9 @@ const Pins = ({navigation}) => {
           }}
           centerItem={{
             ...friendsNavItem,
+            onPress: () => {
+              navigation.navigate('Friends')
+            },
           }}
           rightItem={{
             ...profileNavItem,
@@ -604,6 +630,13 @@ const styles = StyleSheet.create({
     fontSize: screenHeight / 14,
     fontWeight: 'bold',
     color: themeColor,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
   },
   ImageView: {
     // backgroundColor: themeColor,

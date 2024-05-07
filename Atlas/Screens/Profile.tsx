@@ -190,6 +190,9 @@ const Profile = ({navigation}) => {
           }}
           centerItem={{
             ...friendsNavItem,
+            onPress: () => {
+              navigation.navigate('Friends')
+            },
           }}
           leftItem={{
             ...pinNavItem,
@@ -247,6 +250,13 @@ const styles = StyleSheet.create({
     fontSize: screenHeight / 14,
     fontWeight: 'bold',
     color: themeColor,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
   },
   subTitleText: {
     fontSize: screenHeight / 22,

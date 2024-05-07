@@ -73,14 +73,6 @@ const LoginScreen = ({navigation}) => {
         onChangeText={newText => setPassword(newText)}
         value={password}
       />
-      {/* Forget password button */}
-      <TouchableOpacity
-        onPress={() => {
-          // setEmail('ngub24@gmail.com')
-          // setPassword('password')
-        }}>
-        <Text style={styles.forgotPassword}>Forget password?</Text>
-      </TouchableOpacity>
       {/* Conditional rendering of login button or activity indicator */}
       {loading ? (
         <ActivityIndicator size={'large'} color='#0000ff' />

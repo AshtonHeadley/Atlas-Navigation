@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.5,
     shadowRadius: 3.5,
+    maxHeight: screenHeight / 3,
   },
   TitleText: {
     marginRight: 10,

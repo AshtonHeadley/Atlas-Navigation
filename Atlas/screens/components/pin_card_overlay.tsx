@@ -137,10 +137,11 @@ const PinOverlayInput = ({
           <Text style={styles.title}>Create Pin</Text>
           <TextInput
             placeholderTextColor={'white'}
-            placeholder='Title'
+            placeholder='Enter Title Here'
             value={title}
             onChangeText={text => setTitle(text)}
             style={styles.input}
+            maxLength={20}
           />
           <View
             style={{
@@ -148,7 +149,7 @@ const PinOverlayInput = ({
             }}>
             <View style={{justifyContent: 'center', marginRight: 8}}>
               <Text style={{color: '#f4f3f4', fontWeight: 'bold'}}>
-                Publish Pin?
+                Make Public?
               </Text>
             </View>
             <Switch
@@ -159,17 +160,18 @@ const PinOverlayInput = ({
               value={isEnabled}
             />
           </View>
-          <TouchableOpacity
+          <TouchableHighlight
+            {...{...touchProps, underlayColor: backGroundColor}}
             style={{
               ...styles.button,
               borderWidth: 1.5,
               borderColor: 'black',
               paddingHorizontal: 50,
-              marginBottom: 10,
+              margin: 10,
             }}
             onPress={toggleSettingDate.bind(null, true)}>
             <Text>Set Duration?</Text>
-          </TouchableOpacity>
+          </TouchableHighlight>
           <DatePicker
             modal
             open={settingDate}
@@ -184,7 +186,8 @@ const PinOverlayInput = ({
               console.log(date)
             }}
           />
-          <TouchableOpacity
+          <TouchableHighlight
+            {...{...touchProps, underlayColor: backGroundColor}}
             style={{
               ...styles.button,
               borderWidth: 1.5,
@@ -193,7 +196,7 @@ const PinOverlayInput = ({
             }}
             onPress={handleImage}>
             <Text>Add Image?</Text>
-          </TouchableOpacity>
+          </TouchableHighlight>
           <View
             style={{
               flexDirection: 'row',
@@ -254,7 +257,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    shadowColor: 'red',
   },
   addImageButton: {
     width: screenWidth / 2,
@@ -264,13 +266,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: themeColor,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 4,
-      height: 6,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3.5,
   },
   btnNormal: {
     borderColor: 'red',

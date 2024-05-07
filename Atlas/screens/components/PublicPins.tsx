@@ -28,18 +28,6 @@ import {
 } from '@firebase/firestore'
 import {FIREBASE_APP} from '../../FirebaseConfig'
 
-const queryEmail = async (name: string) => {
-  const db = getFirestore(FIREBASE_APP)
-  try {
-    const friendRequestsCollection = collection(db, 'users')
-    const q = query(friendRequestsCollection, where('name', '==', name))
-    const querySnapshot = await getDocs(q)
-    const docs = querySnapshot.docs.map(doc => doc.data())
-    return docs[0].email
-  } catch (err) {
-    console.error(err)
-  }
-}
 const PublicPins = ({isVisible = false, onSubmit}) => {
   const db = getFirestore(FIREBASE_APP)
   const [pinCards, setPinCards] = useState([] as any)
@@ -74,6 +62,8 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
       date,
     )
     pinList.push(pinCard)
+    setPinCards([...pinCards, pinCard])
+    setRenderList((prevList: any) => [...prevList, pinCard])
   }
 
   useEffect(() => {
@@ -83,56 +73,36 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
           const pins = await (
             await getDocs(collection(db, 'PublicPins'))
           ).docs.map(doc => doc.data()) // Call loadPinComponents
-
+          const currentDate = new Date()
           pins.forEach(async pin => {
-            const currentDate = new Date()
-
             if (pin.dateSet && pin.terminationDate) {
-              // Convert terminationDate to a Date object
-              const terminationDateSeconds = pin.terminationDate.seconds
-              const terminationDateNanoseconds = pin.terminationDate.nanoseconds
               const terminationDate = new Date(
-                terminationDateSeconds * 1000 +
-                  terminationDateNanoseconds / 1e6,
+                pin.terminationDate.seconds * 1000,
               )
-
-              // Convert terminationDate to the local timezone
-              const localTerminationDate = new Date(
-                terminationDate.getTime() -
-                  terminationDate.getTimezoneOffset() * 60 * 1000,
-              )
-
-              // Compare current date with localTerminationDate
-              if (currentDate > localTerminationDate) {
-                // Pin needs to be terminated, skip handleCreatePin
+              if (currentDate > terminationDate) {
                 console.log(
-                  `Skipping public pin "${pin.title}" as it has expired.`,
-                )
-                deletePinComponent(
-                  pin.title,
-                  pin.user,
-                  pin.published,
-                  await queryEmail(pin.user),
+                  `Skipping pin "${pin.title}" as it has expired. Removing Pin from database`,
+                  deletePinComponent(pin.title, pin.user, pin.published),
                 )
               } else {
-                handleCreatePin(
+                await handleCreatePin(
                   pin.latitude,
                   pin.longitude,
                   pin.title,
-                  pin.imageURI,
                   pin.user,
+                  pin.imageURI,
                   pin.dateSet,
                   pin.terminationDate,
                 )
               }
             } else {
               // No termination date set, create the pin
-              handleCreatePin(
+              await handleCreatePin(
                 pin.latitude,
                 pin.longitude,
                 pin.title,
-                pin.imageURI,
                 pin.user,
+                pin.imageURI,
                 pin.dateSet,
                 pin.terminationDate,
               )
@@ -149,6 +119,7 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
       setSearchVal('')
       pinList.clear
       setPinCards([...pinList])
+      setRenderList([])
     }
   }, [isVisible])
 
@@ -184,11 +155,16 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
             onChangeText={(input: string) => {
               setSearchVal(input)
               if (input != '') {
-                const filteredCards = pinCards.filter(card =>
-                  card.props.text.title
-                    .toLowerCase()
-                    .includes(input.toLowerCase()),
-                )
+                const filteredCards = pinCards.filter(card => {
+                  return (
+                    card.props.text.title
+                      .toLowerCase()
+                      .includes(input.toLowerCase()) ||
+                    card.props.text.user
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  )
+                })
                 setRenderList(filteredCards)
               } else {
                 setRenderList([...pinCards])
@@ -223,10 +199,17 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: screenHeight / 24,
+    fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: 'white',
+    color: themeColor,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 6,
+      height: 8,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 6.5,
   },
   input: {
     width: '80%',

@@ -160,6 +160,7 @@ const CreateAccount = ({navigation}) => {
           placeholderTextColor={colorTheme}
           onChangeText={newText => setName(newText)}
           autoCapitalize='none'
+          autoCorrect={false}
         />
         <TextInput
           style={styles.input}
@@ -185,16 +186,7 @@ const CreateAccount = ({navigation}) => {
           textContentType={'oneTimeCode'}
         />
       </View>
-      <View style={styles.TextFieldViewStyle}>
-        <Text style={styles.subText}>
-          By creating an account you agree to our
-        </Text>
-        <TouchableOpacity>
-          <Text style={styles.subText}>
-            Terms of Service and Privacy Policy
-          </Text>
-        </TouchableOpacity>
-      </View>
+
       <View style={styles.TextFieldViewStyle}>
         {loading ? (
           <ActivityIndicator size={'large'} color='#0000ff' />

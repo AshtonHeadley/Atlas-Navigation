@@ -11,6 +11,7 @@ import Profile from './Screens/Profile'
 import FriendsScreen from './Screens/FriendsScreen'
 import FriendRequestsScreen from './Screens/FriendRequestsScreen'
 import PublicPins from './Screens/components/PublicPins'
+import AddFriendScreen from './Screens/AddFriendScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -28,7 +29,7 @@ const Main = () => {
         screenOptions={{
           headerShown: false,
           animation: 'fade',
-          animationDuration: 500,
+          animationDuration: 250,
         }}>
         {loggedIn ? (
           <Stack.Screen name='HomeScreen' component={Home} />
@@ -39,8 +40,9 @@ const Main = () => {
         <Stack.Screen name='Login' component={LoginScreen} />
         <Stack.Screen name='PinScreen' component={Pins} />
         <Stack.Screen name='Compass' component={CompassPage} />
-        <Stack.Screen name='Friends' component={FriendsScreen} />
         <Stack.Screen name='Profile' component={Profile} />
+        <Stack.Screen name='Friends' component={FriendsScreen} />
+        <Stack.Screen name='AddFriend' component={AddFriendScreen} />
         <Stack.Screen name='FriendRequests' component={FriendRequestsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
