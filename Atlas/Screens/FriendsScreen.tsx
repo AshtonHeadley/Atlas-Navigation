@@ -22,6 +22,7 @@ import {
   doc,
   setDoc,
   GeoPoint,
+  deleteDoc,
 } from '@firebase/firestore'
 import {
   FIREBASE_APP,
@@ -121,7 +122,72 @@ const FriendsScreen = ({navigation}) => {
       )
     }
   }
+  const handleRemoveFriend = async friendEmail => {
+    try {
+      const db = FIREBASE_FIRESTORE
+      const currentUserEmail = FIREBASE_AUTH.currentUser.email
 
+      // Get the current user's document
+      const currentUserDoc = await getDocs(
+        query(collection(db, 'users'), where('email', '==', currentUserEmail)),
+      )
+      if (!currentUserDoc.empty) {
+        const currentUserId = currentUserDoc.docs[0].id
+
+        // Find the friend's document
+        const friendDoc = await getDocs(
+          query(collection(db, 'users'), where('email', '==', friendEmail)),
+        )
+        if (!friendDoc.empty) {
+          const friendId = friendDoc.docs[0].id
+
+          // Remove the friend from the current user's 'friends' subcollection
+          const friendsCollection = collection(
+            db,
+            'users',
+            currentUserId,
+            'friends',
+          )
+          const friendSnapshot = await getDocs(
+            query(friendsCollection, where('email', '==', friendEmail)),
+          )
+          if (!friendSnapshot.empty) {
+            const friendDocId = friendSnapshot.docs[0].id
+            await deleteDoc(
+              doc(db, 'users', currentUserId, 'friends', friendDocId),
+            )
+          }
+
+          // Remove the current user from the friend's 'friends' subcollection
+          const friendFriendsCollection = collection(
+            db,
+            'users',
+            friendId,
+            'friends',
+          )
+          const friendFriendSnapshot = await getDocs(
+            query(
+              friendFriendsCollection,
+              where('email', '==', currentUserEmail),
+            ),
+          )
+          if (!friendFriendSnapshot.empty) {
+            const friendFriendDocId = friendFriendSnapshot.docs[0].id
+            await deleteDoc(
+              doc(db, 'users', friendId, 'friends', friendFriendDocId),
+            )
+          }
+        }
+      }
+
+      // Update the FriendsList on the UI
+      setFriends(prevFriends =>
+        prevFriends.filter(friend => friend.email !== friendEmail),
+      )
+    } catch (error) {
+      console.error('Error removing friend:', error)
+    }
+  }
   return (
     <View style={styles.container}>
       <Text style={{...styles.title, marginTop: 30}}>Friends List</Text>
@@ -142,13 +208,45 @@ const FriendsScreen = ({navigation}) => {
             <Text style={styles.friendName}>{friend.name}</Text>
             <Text style={styles.friendEmail}>{friend.email}</Text>
             {selectedFriend === friend && (
-              <TouchableOpacity
-                style={styles.shareLocationButton}
-                onPress={handleLocationSharingRequest}>
-                <Text style={styles.shareLocationButtonText}>
-                  Share Location
-                </Text>
-              </TouchableOpacity>
+              <View style={{alignItems: 'center'}}>
+                <TouchableOpacity
+                  style={styles.shareLocationButton}
+                  onPress={handleLocationSharingRequest}>
+                  <Text style={styles.shareLocationButtonText}>
+                    Share Location
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.shareLocationButton}
+                  onPress={async () => {
+                    try {
+                      Alert.alert(
+                        'Are you sure you want to remove this person?',
+                        '',
+                        [
+                          {
+                            text: 'Cancel',
+                            onPress: () => {},
+                          },
+                          {
+                            text: 'Confirm',
+                            onPress: async () => {
+                              handleRemoveFriend(friend.email)
+                            },
+                          },
+                        ],
+                        {cancelable: true},
+                      )
+                    } catch (error) {
+                      console.error('Error signing out:', error)
+                      Alert.alert('An error occurred while signing out.')
+                    }
+                  }}>
+                  <Text style={styles.shareLocationButtonText}>
+                    Remove Friend
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
           </TouchableOpacity>
         ))}
@@ -290,7 +388,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   shareLocationButton: {
-    backgroundColor: themeColor,
+    backgroundColor: backGroundColor,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
