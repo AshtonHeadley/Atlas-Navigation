@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  TouchableHighlight,
 } from 'react-native'
 import {
   collection,
@@ -151,7 +152,16 @@ const FriendRequestsScreen = ({navigation}) => {
       console.error('Error denying friend request:', error)
     }
   }
+  const [isPress, setIsPress] = useState(false)
 
+  const touchProps = {
+    activeOpacity: 1,
+    // underlayColor: 'red', // <-- "backgroundColor" will be always overwritten by "underlayColor"
+    style: isPress ? styles.btnPress : styles.btnNormal, // <-- but you can still apply other style changes
+    onHideUnderlay: () => setIsPress(false),
+    onShowUnderlay: () => setIsPress(true),
+    onPress: () => console.log('HELLO'), // <-- "onPress" is apparently required
+  }
   return (
     <View style={styles.container}>
       <View style={{flex: 0.3}} />
@@ -169,25 +179,43 @@ const FriendRequestsScreen = ({navigation}) => {
                   {request.name} ({request.email})
                 </Text>
               </View>
-              <View style={styles.buttonContainer}>
-                <Button
-                  title='Allow'
-                  color={themeColor}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-around',
+                }}>
+                <TouchableHighlight
+                  {...{...touchProps, underlayColor: 'red'}}
+                  style={{
+                    ...styles.button,
+                    borderWidth: 1.5,
+                    borderColor: themeColor,
+                  }}
+                  onPress={() =>
+                    handleDenyFriendRequest(request.id, request.email)
+                  }>
+                  <Text style={{fontWeight: 'bold', color: 'white'}}>
+                    Cancel
+                  </Text>
+                </TouchableHighlight>
+                <TouchableHighlight
+                  {...{...touchProps, underlayColor: 'lime'}}
+                  style={{
+                    ...styles.button,
+                    borderWidth: 1.5,
+                    borderColor: themeColor,
+                  }}
                   onPress={() =>
                     handleAllowFriendRequest(
                       request.id,
                       request.email,
                       request.name,
                     )
-                  }
-                />
-                <Button
-                  title='Deny'
-                  color={themeColor}
-                  onPress={() =>
-                    handleDenyFriendRequest(request.id, request.email)
-                  }
-                />
+                  }>
+                  <Text style={{fontWeight: 'bold', color: 'white'}}>
+                    Confirm
+                  </Text>
+                </TouchableHighlight>
               </View>
             </View>
           ))}
@@ -245,6 +273,13 @@ const styles = StyleSheet.create({
   navButton: {
     alignItems: 'center',
   },
+  button: {
+    paddingVertical: '5%',
+    paddingHorizontal: '5%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
   title: {
     fontSize: 40,
     fontWeight: 'bold',
@@ -259,13 +294,15 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   textContainer: {
-    backgroundColor: 'white',
+    backgroundColor: themeColor,
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
+    minWidth: '80%',
   },
   text: {
-    color: 'black',
+    color: 'white',
+    fontSize: 20,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -280,6 +317,19 @@ const styles = StyleSheet.create({
     color: 'white',
     padding: 10,
     borderRadius: 15,
+  },
+  btnNormal: {
+    borderColor: 'red',
+    borderWidth: 1,
+    borderRadius: 10,
+    height: 30,
+    width: 100,
+  },
+  btnPress: {
+    borderColor: 'red',
+    borderWidth: 1,
+    height: 30,
+    width: 100,
   },
 })
 

@@ -28,6 +28,7 @@ import NavigationBar, {
   homeNavItem,
   pinNavItem,
 } from './components/NavigationBar'
+import {globalFriendList} from './FriendsScreen'
 // import Icon from 'react-native-vector-icons/FontAwesome'
 
 const AddFriendScreen = ({navigation}) => {
@@ -44,12 +45,15 @@ const AddFriendScreen = ({navigation}) => {
         // User found, send friend request
         const userId = querySnapshot.docs[0].id
         const currentUserEmail = FIREBASE_AUTH.currentUser?.email
+        if (globalFriendList.includes(email)) {
+          Alert.alert('You cannot add the same friend twice! 🥲')
+          return
+        }
         if (email.toLowerCase() === currentUserEmail.toLowerCase()) {
           Alert.alert('You cannot add yourself as a friend 🥲')
           return
         }
         await sendFriendRequest(userId)
-        Alert.alert('Friend request sent')
       } else {
         // User not found
         Alert.alert('User not found')
@@ -92,9 +96,9 @@ const AddFriendScreen = ({navigation}) => {
           name: currentUserName,
         }
         await addDoc(friendRequestsCollection, friendRequestData)
-        console.log('Friend request sent successfully')
+        Alert.alert('Friend request sent')
       } else {
-        console.log('Friend request already exists')
+        Alert.alert('Friend Request already sent')
       }
     } catch (error) {
       console.error('Error sending friend request:', error)

@@ -45,6 +45,8 @@ import GeoLocation from 'react-native-geolocation-service'
 import {screenHeight, screenWidth} from './Home_Page'
 import FastImage from 'react-native-fast-image'
 
+export let globalFriendList = []
+
 const FriendsScreen = ({navigation}) => {
   const [friends, setFriends] = useState([])
   const [location, setLocation] = useState([])
@@ -97,8 +99,10 @@ const FriendsScreen = ({navigation}) => {
               ...doc.data(),
             }))
             setFriends(friendsList)
+
             friendsList.forEach(val => {
               handleFriendImage(val.email)
+              globalFriendList.push(val.email)
             })
           })
 
@@ -264,6 +268,7 @@ const FriendsScreen = ({navigation}) => {
     try {
       const db = FIREBASE_FIRESTORE
       const currentUserEmail = FIREBASE_AUTH.currentUser.email
+      globalFriendList.splice(globalFriendList.indexOf(friendEmail), 1)
 
       // Get the current user's document
       const currentUserDoc = await getDocs(
@@ -497,7 +502,7 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '80%',
     // backgroundColor: '#dcdcdc',
-    maxHeight: '65%',
+    maxHeight: '80%',
   },
   listTitle: {
     fontSize: 20,
