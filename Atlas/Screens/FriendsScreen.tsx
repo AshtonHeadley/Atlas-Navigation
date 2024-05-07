@@ -43,6 +43,7 @@ import NavigationBar, {
 import {requestLocationPermission, setCurrentNavxTarget} from './Pins'
 import GeoLocation from 'react-native-geolocation-service'
 import {screenHeight, screenWidth} from './Home_Page'
+import FastImage from 'react-native-fast-image'
 
 const FriendsScreen = ({navigation}) => {
   const [friends, setFriends] = useState([])
@@ -96,11 +97,9 @@ const FriendsScreen = ({navigation}) => {
               ...doc.data(),
             }))
             setFriends(friendsList)
-          })
-
-          friends.forEach(val => {
-            // console.log(val.email)
-            handleFriendImage(val.email)
+            friendsList.forEach(val => {
+              handleFriendImage(val.email)
+            })
           })
 
           // Clean up the listener on unmount
@@ -114,7 +113,10 @@ const FriendsScreen = ({navigation}) => {
     fetchFriends()
   }, [])
 
+  const [permittedFriend, setPermittedFriend] = useState(null)
+
   const updateLocation = async (lat, long) => {
+    setPermittedFriend(selectedFriend.email)
     const db = FIREBASE_FIRESTORE
     const currentUserEmail = FIREBASE_AUTH.currentUser.email
     const currentUserDoc = await getDocs(
@@ -152,12 +154,7 @@ const FriendsScreen = ({navigation}) => {
                 setLocationPermission(true)
               } else {
                 setLocationPermission(false)
-
-                if (isNavigating) {
-                  Alert.alert('Location disabled')
-                  navigation.navigate('Friends')
-                  setIsNavigating(false)
-                }
+                navigation.navigate('Friends')
               }
             }
           },
@@ -189,7 +186,6 @@ const FriendsScreen = ({navigation}) => {
     ) {
       const {latitude, longitude} = location
       setCurrentNavxTarget(selectedFriend.name, latitude, longitude)
-      setIsNavigating(true)
       navigation.navigate('Compass')
     } else {
       Alert.alert('Your Friend turned off navigation sharing')
@@ -207,15 +203,16 @@ const FriendsScreen = ({navigation}) => {
         console.log('hello')
         const {latitude, longitude} = position.coords
         updateLocation(latitude, longitude)
-        Alert.alert('Location shared successfully')
       },
       error => {
         console.log(error.code, error.message)
         Alert.alert('Error', 'Failed to share your location.')
       },
+
       {enableHighAccuracy: true, distanceFilter: 5},
     )
     setWatchId(newWatchId)
+    Alert.alert('Location shared successfully')
   }
 
   // Requests location permission and shares the current location with the selected friend
@@ -223,6 +220,10 @@ const FriendsScreen = ({navigation}) => {
     const res = await requestLocationPermission()
 
     if (res) {
+      if (isSharingLocation) {
+        console.log('here')
+        handleStopSharingLocation()
+      }
       setIsSharingLocation(true)
       startLocationSharing()
     } else {
@@ -353,22 +354,20 @@ const FriendsScreen = ({navigation}) => {
                 }}>
                 <Text style={styles.friendName}>{friend.name}</Text>
               </View>
-
               <Image
                 source={{
                   uri: 'data:image/png;base64,' + imageMap[friend.email],
                 }}
                 style={{
-                  width: 100,
-                  height: 100,
-                  borderWidth: 3,
+                  width: 70,
+                  height: 70,
                   borderColor: themeColor,
-                  borderRadius: 10,
+                  borderRadius: 5,
                 }}
               />
             </View>
             {selectedFriend === friend && (
-              <View style={{alignItems: 'center'}}>
+              <View style={{alignItems: 'center', marginBottom: 10}}>
                 <TouchableOpacity
                   style={styles.shareLocationButton}
                   onPress={handleLocationSharingRequest}>
@@ -376,7 +375,7 @@ const FriendsScreen = ({navigation}) => {
                     Share Location
                   </Text>
                 </TouchableOpacity>
-                {locationPermission && (
+                {!isSharingLocation && locationPermission && (
                   <TouchableOpacity
                     style={styles.shareLocationButton}
                     onPress={() => {
@@ -385,8 +384,7 @@ const FriendsScreen = ({navigation}) => {
                     <Text style={styles.shareLocationButtonText}>Navigate</Text>
                   </TouchableOpacity>
                 )}
-
-                {isSharingLocation && (
+                {friend.email == permittedFriend && isSharingLocation && (
                   <TouchableOpacity
                     style={styles.shareLocationButton}
                     onPress={handleStopSharingLocation}>
@@ -430,23 +428,25 @@ const FriendsScreen = ({navigation}) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <TouchableOpacity
-        style={styles.requestsButton}
-        onPress={() => navigation.navigate('FriendRequests')}>
-        <Text style={styles.requestsButtonText}>View Friend Requests</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate('AddFriend')}>
-        <Text
-          style={{
-            fontSize: screenWidth / 20,
-            color: 'white',
-          }}>
-          Add Friend
-        </Text>
-        {/* <Icon name='search' size={24} color='white' /> */}
-      </TouchableOpacity>
+      <View style={{flexDirection: 'row'}}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('FriendRequests')}>
+          <FastImage
+            source={require('../assets/request.png')}
+            style={{width: 40, height: 40}}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('AddFriend')}>
+          <FastImage
+            source={require('../assets/add.png')}
+            style={{width: 32, height: 32}}
+          />
+          {/* <Icon name='search' size={24} color='white' /> */}
+        </TouchableOpacity>
+      </View>
       <NavigationBar //navigation bar on bottom of screen
         rightItem={{
           ...profileNavItem,
@@ -496,8 +496,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     width: '80%',
-    backgroundColor: '#dcdcdc',
-    maxHeight: '50%',
+    // backgroundColor: '#dcdcdc',
+    maxHeight: '65%',
   },
   listTitle: {
     fontSize: 20,
@@ -530,12 +530,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addButton: {
-    width: '80%',
+    width: '30%',
     height: screenHeight / 11,
-    borderRadius: 5,
+    borderRadius: 360,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: themeColor,
+    backgroundColor: '#898989',
+    marginHorizontal: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 4,
+      height: 6,
+    },
+    shadowOpacity: 0.45,
+    shadowRadius: 3.5,
   },
   bottomNavigation: {
     flexDirection: 'row',
@@ -554,8 +562,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   friendItem: {
+    alignSelf: 'center',
     marginBottom: 10,
-    backgroundColor: themeColor, // Example background color for the friend item
+    backgroundColor: '#2d6677', // Example background color for the friend item
     borderRadius: 5,
     shadowColor: '#000',
     shadowOffset: {

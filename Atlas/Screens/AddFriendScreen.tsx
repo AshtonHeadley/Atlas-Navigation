@@ -32,7 +32,6 @@ import NavigationBar, {
 
 const AddFriendScreen = ({navigation}) => {
   const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
 
   const handleSendFriendRequest = async () => {
     try {
@@ -44,6 +43,11 @@ const AddFriendScreen = ({navigation}) => {
       if (!querySnapshot.empty) {
         // User found, send friend request
         const userId = querySnapshot.docs[0].id
+        const currentUserEmail = FIREBASE_AUTH.currentUser?.email
+        if (email.toLowerCase() === currentUserEmail.toLowerCase()) {
+          Alert.alert('You cannot add yourself as a friend 🥲')
+          return
+        }
         await sendFriendRequest(userId)
         Alert.alert('Friend request sent')
       } else {

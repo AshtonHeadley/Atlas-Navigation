@@ -129,6 +129,8 @@ const PinOverlayInput = ({
           style={{
             height: '50%',
             width: '90%',
+            minHeight: '50%',
+            minWidth: '90%',
             position: 'absolute',
             backgroundColor: themeColor,
             flex: 1,
