@@ -108,6 +108,7 @@ const AddFriendScreen = ({navigation}) => {
           value={email}
           onChangeText={setEmail}
           autoCapitalize={'none'}
+          autoCorrect={false}
         />
         <TouchableOpacity
           onPress={handleSendFriendRequest}

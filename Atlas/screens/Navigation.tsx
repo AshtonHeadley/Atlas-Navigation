@@ -7,7 +7,6 @@ import {
   View,
 } from 'react-native'
 import {
-  currentNavTarget,
   currentNavTitle,
   currentNavxTarget,
   requestLocationPermission,
