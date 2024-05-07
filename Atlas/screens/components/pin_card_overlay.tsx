@@ -2,7 +2,6 @@ import React, {useState} from 'react'
 import ImageResizer from '@bam.tech/react-native-image-resizer'
 import RNFS from 'react-native-fs'
 import {
-  Button,
   Modal,
   StyleSheet,
   Switch,
@@ -11,7 +10,6 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
-  Button,
 } from 'react-native'
 import {screenHeight, screenWidth} from '../Home_Page'
 import {Alert} from 'react-native'
