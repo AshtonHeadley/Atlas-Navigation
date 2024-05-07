@@ -10,9 +10,22 @@ import {
 import {backGroundColor, themeColor} from '../../default-styles'
 import {GLOBAL_EMAIL, screenHeight, screenWidth} from '../Home_Page'
 import PinCard from './pin_card'
-import {createPinCard, loadPinComponents} from '../Pins'
+import {
+  createPinCard,
+  deletePinComponent,
+  getPinCollection,
+  loadPinComponents,
+} from '../Pins'
 import {useEffect, useState} from 'react'
-import {getDocs, collection, getFirestore} from '@firebase/firestore'
+import {
+  getDocs,
+  collection,
+  getFirestore,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from '@firebase/firestore'
 import {FIREBASE_APP} from '../../FirebaseConfig'
 
 const PublicPins = ({isVisible = false, onSubmit}) => {
@@ -28,6 +41,8 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
     inputTitle: string,
     user: string,
     image = '',
+    dateSet: boolean,
+    date: Date,
   ) => {
     const specialNum = Math.random()
     const key = Math.abs(latitude * longitude * specialNum) //unique key for each card. For deletion + DB
@@ -43,32 +58,58 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
       user,
       true,
       true,
+      dateSet,
+      date,
     )
     pinList.push(pinCard)
+    setPinCards([...pinCards, pinCard])
+    setRenderList((prevList: any) => [...prevList, pinCard])
   }
-
-  useEffect(() => {
-    if (isVisible) {
-      const loadPins = async () => {
-        try {
-          const pins = await (
-            await getDocs(collection(db, 'PublicPins'))
-          ).docs.map(doc => doc.data()) // Call loadPinComponents
-          pins.forEach(async pin => {
+  const loadPins = async () => {
+    try {
+      const pins = await (
+        await getDocs(collection(db, 'PublicPins'))
+      ).docs.map(doc => doc.data()) // Call loadPinComponents
+      const currentDate = new Date()
+      pins.forEach(async pin => {
+        if (pin.dateSet && pin.terminationDate) {
+          const terminationDate = new Date(pin.terminationDate.seconds * 1000)
+          if (currentDate > terminationDate) {
+            console.log(
+              `Skipping pin "${pin.title}" as it has expired. Removing Pin from database`,
+              deletePinComponent(pin.title, pin.user, pin.published),
+            )
+          } else {
             await handleCreatePin(
               pin.latitude,
               pin.longitude,
               pin.title,
               pin.user,
               pin.imageURI,
+              pin.dateSet,
+              pin.terminationDate,
             )
-            setPinCards([...pinList])
-            setRenderList([...pinList])
-          })
-        } catch (e) {
-          console.error('Error loading pins:', e)
+          }
+        } else {
+          // No termination date set, create the pin
+          await handleCreatePin(
+            pin.latitude,
+            pin.longitude,
+            pin.title,
+            pin.user,
+            pin.imageURI,
+            pin.dateSet,
+            pin.terminationDate,
+          )
         }
-      }
+      })
+    } catch (e) {
+      console.error('Error loading public pins:', e)
+    }
+  }
+
+  useEffect(() => {
+    if (isVisible) {
       loadPins()
 
       return
@@ -76,6 +117,7 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
       setSearchVal('')
       pinList.clear
       setPinCards([...pinList])
+      setRenderList([])
     }
   }, [isVisible])
 
@@ -111,14 +153,20 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
             onChangeText={(input: string) => {
               setSearchVal(input)
               if (input != '') {
-                const filteredCards = pinCards.filter(card =>
-                  card.props.text.title
-                    .toLowerCase()
-                    .includes(input.toLowerCase()),
-                )
+                const filteredCards = renderList.filter(card => {
+                  return (
+                    card.props.text.title
+                      .toLowerCase()
+                      .includes(input.toLowerCase()) ||
+                    card.props.text.user
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  )
+                })
                 setRenderList(filteredCards)
               } else {
-                setRenderList([...pinCards])
+                setRenderList([])
+                loadPins()
               }
             }}
           />
@@ -150,10 +198,17 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: screenHeight / 24,
+    fontSize: 40,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: 'white',
+    color: themeColor,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 6,
+      height: 8,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 6.5,
   },
   input: {
     width: '80%',
@@ -162,6 +217,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    borderColor: 'white',
+    color: 'white',
   },
   Text: {
     justifyContent: 'center',

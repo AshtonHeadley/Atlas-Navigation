@@ -68,16 +68,32 @@ const HomePage = ({navigation}) => {
               style={styles.SignOut}
               onPress={async () => {
                 try {
-                  await signOut(PERSISTENT_AUTH)
-                  console.log('signed out successfully')
-                  navigation.navigate('LoginScreen')
+                  Alert.alert(
+                    'Are you sure you want to sign out?',
+                    '',
+                    [
+                      {
+                        text: 'Cancel',
+                        onPress: () => {},
+                      },
+                      {
+                        text: 'Confirm',
+                        onPress: async () => {
+                          await signOut(PERSISTENT_AUTH)
+                          console.log('signed out successfully')
+                          navigation.navigate('LoginScreen')
+                        },
+                      },
+                    ],
+                    {cancelable: true},
+                  )
                 } catch (error) {
                   console.error('Error signing out:', error)
                   Alert.alert('An error occurred while signing out.')
                 }
               }}>
               <FastImage
-                source={require('../assets/menu.png')}
+                source={require('../assets/logout.png')}
                 style={{width: 40, height: 40}}
               />
             </TouchableOpacity>
@@ -107,6 +123,9 @@ const HomePage = ({navigation}) => {
             <Text style={styles.text}>Pins</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={async () => {
+              navigation.navigate('Friends')
+            }}
             style={{
               ...styles.Button,
               backgroundColor: themeColor,
@@ -118,6 +137,9 @@ const HomePage = ({navigation}) => {
             <Text style={styles.text}>Friends</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={async () => {
+              navigation.navigate('Profile')
+            }}
             style={{
               ...styles.Button,
               backgroundColor: themeColor,

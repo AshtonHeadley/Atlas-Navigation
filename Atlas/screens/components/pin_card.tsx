@@ -13,12 +13,27 @@ const PinCard = ({
   image = '',
   addPin = false,
   creator = '',
+  dateSet = false,
+  date,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const {title, coordinates} = text
   const [bottomWidth, setBottomWidth] = useState(3)
   const [vertMargin, setVertMargin] = useState(8)
   const [radius, setRadius] = useState(5)
+
+  const convertDate = () => {
+    const regex = /seconds=(\d+)/
+    const match = date.match(regex)
+    if (match) {
+      const seconds = parseInt(match[1], 10)
+      const dateObject = new Date(seconds * 1000)
+      return `${dateObject.toLocaleDateString()}, ${dateObject.toLocaleTimeString()}`
+    }
+    return date
+  }
+
+  const cardHeight = dateSet ? screenHeight / 6.75 : screenHeight / 8
 
   return (
     <View>
@@ -42,12 +57,23 @@ const PinCard = ({
             borderBottomRightRadius: radius,
             borderBottomLeftRadius: radius,
             marginVertical: vertMargin,
+            minHeight: screenHeight / 8,
           }}>
           <View style={{flex: 2}}>
             <Text style={styles.TitleText}>{title}</Text>
-            <Text style={styles.SubTitleText}>{creator}</Text>
+            <Text style={{...styles.SubTitleText, fontWeight: 'bold'}}>
+              {creator}
+            </Text>
+            {dateSet ? (
+              <Text style={styles.SubTitleText}>Deletes: {convertDate()}</Text>
+            ) : (
+              <View />
+            )}
           </View>
-          <FastImage source={{uri: image}} style={styles.ImageView} />
+          <FastImage
+            source={{uri: 'data:image/png;base64,' + image}}
+            style={styles.ImageView}
+          />
         </View>
         <ExpandableView
           expanded={isExpanded}
@@ -66,7 +92,6 @@ const styles = StyleSheet.create({
   Card: {
     borderTopRightRadius: 5,
     borderTopLeftRadius: 5,
-    height: screenHeight / 8,
     width: screenWidth / 1.25,
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -79,6 +104,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.5,
     shadowRadius: 3.5,
+    maxHeight: screenHeight / 3,
   },
   TitleText: {
     marginRight: 10,
@@ -99,10 +125,10 @@ const styles = StyleSheet.create({
   SubTitleText: {
     marginRight: 10,
     paddingLeft: 10,
-    flex: 1,
     fontSize: screenHeight / 48,
     // fontWeight: 'bold',
     color: '#CCCC',
+    marginBottom: 10,
   },
 })
 

@@ -53,11 +53,11 @@ const ExpandableView = ({
               <TouchableOpacity onPress={onPressDel} style={styles.button}>
                 <Text style={styles.SubTitleText}>Delete</Text>
               </TouchableOpacity>
+              <TouchableOpacity onPress={onPressNav} style={styles.button}>
+                <Text style={styles.SubTitleText}>Navigate</Text>
+              </TouchableOpacity>
             </>
           )}
-          <TouchableOpacity onPress={onPressNav} style={styles.button}>
-            <Text style={styles.SubTitleText}>Navigate</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </Animated.View>
