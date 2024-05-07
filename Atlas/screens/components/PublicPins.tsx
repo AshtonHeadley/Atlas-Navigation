@@ -65,53 +65,51 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
     setPinCards([...pinCards, pinCard])
     setRenderList((prevList: any) => [...prevList, pinCard])
   }
+  const loadPins = async () => {
+    try {
+      const pins = await (
+        await getDocs(collection(db, 'PublicPins'))
+      ).docs.map(doc => doc.data()) // Call loadPinComponents
+      const currentDate = new Date()
+      pins.forEach(async pin => {
+        if (pin.dateSet && pin.terminationDate) {
+          const terminationDate = new Date(pin.terminationDate.seconds * 1000)
+          if (currentDate > terminationDate) {
+            console.log(
+              `Skipping pin "${pin.title}" as it has expired. Removing Pin from database`,
+              deletePinComponent(pin.title, pin.user, pin.published),
+            )
+          } else {
+            await handleCreatePin(
+              pin.latitude,
+              pin.longitude,
+              pin.title,
+              pin.user,
+              pin.imageURI,
+              pin.dateSet,
+              pin.terminationDate,
+            )
+          }
+        } else {
+          // No termination date set, create the pin
+          await handleCreatePin(
+            pin.latitude,
+            pin.longitude,
+            pin.title,
+            pin.user,
+            pin.imageURI,
+            pin.dateSet,
+            pin.terminationDate,
+          )
+        }
+      })
+    } catch (e) {
+      console.error('Error loading public pins:', e)
+    }
+  }
 
   useEffect(() => {
     if (isVisible) {
-      const loadPins = async () => {
-        try {
-          const pins = await (
-            await getDocs(collection(db, 'PublicPins'))
-          ).docs.map(doc => doc.data()) // Call loadPinComponents
-          const currentDate = new Date()
-          pins.forEach(async pin => {
-            if (pin.dateSet && pin.terminationDate) {
-              const terminationDate = new Date(
-                pin.terminationDate.seconds * 1000,
-              )
-              if (currentDate > terminationDate) {
-                console.log(
-                  `Skipping pin "${pin.title}" as it has expired. Removing Pin from database`,
-                  deletePinComponent(pin.title, pin.user, pin.published),
-                )
-              } else {
-                await handleCreatePin(
-                  pin.latitude,
-                  pin.longitude,
-                  pin.title,
-                  pin.user,
-                  pin.imageURI,
-                  pin.dateSet,
-                  pin.terminationDate,
-                )
-              }
-            } else {
-              // No termination date set, create the pin
-              await handleCreatePin(
-                pin.latitude,
-                pin.longitude,
-                pin.title,
-                pin.user,
-                pin.imageURI,
-                pin.dateSet,
-                pin.terminationDate,
-              )
-            }
-          })
-        } catch (e) {
-          console.error('Error loading public pins:', e)
-        }
-      }
       loadPins()
 
       return
@@ -155,7 +153,7 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
             onChangeText={(input: string) => {
               setSearchVal(input)
               if (input != '') {
-                const filteredCards = pinCards.filter(card => {
+                const filteredCards = renderList.filter(card => {
                   return (
                     card.props.text.title
                       .toLowerCase()
@@ -167,7 +165,8 @@ const PublicPins = ({isVisible = false, onSubmit}) => {
                 })
                 setRenderList(filteredCards)
               } else {
-                setRenderList([...pinCards])
+                setRenderList([])
+                loadPins()
               }
             }}
           />

@@ -51,6 +51,7 @@ const PinOverlayInput = ({
     setTitle('')
     setImage('')
     setDate(new Date())
+    setIsEnabled(false)
     onCancel()
   }
   const handleSubmit = () => {
@@ -61,6 +62,7 @@ const PinOverlayInput = ({
     onSubmit(title, image, isEnabled, dateSelected, date)
     setTitle('')
     setImage('')
+    setIsEnabled(false)
     setDate(new Date())
   }
 
