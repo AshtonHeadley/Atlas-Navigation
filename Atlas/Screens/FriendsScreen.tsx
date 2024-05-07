@@ -15,7 +15,8 @@ import {
   doc,
   setDoc,
   GeoPoint,
-} from 'firebase/firestore';
+  updateDoc,
+} from '@firebase/firestore';
 import {
   FIREBASE_APP,
   FIREBASE_AUTH,
@@ -28,12 +29,18 @@ import NavigationBar, {
   homeNavItem,
   profileNavItem,
 } from './components/NavigationBar';
-import {requestLocationPermission} from './Pins';
+import {requestLocationPermission, setCurrentNavxTarget} from './Pins';
 import GeoLocation from 'react-native-geolocation-service';
+import {set} from '@firebase/database';
 
 const FriendsScreen = ({navigation}) => {
   const [friends, setFriends] = useState([]);
-  const [selectedFriend, setSelectedFriend] = useState(null);
+  const [location, setLocation] = useState([]);
+  const [selectedFriend, setSelectedFriend] = useState<{id: string} | null>(
+    null,
+  );
+  const [locationPermission, setLocationPermission] = useState(false);
+  const [isSharingLocation, setIsSharingLocation] = useState(false);
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -60,7 +67,10 @@ const FriendsScreen = ({navigation}) => {
             'friends',
           );
           const unsubscribe = onSnapshot(friendsCollection, snapshot => {
-            const friendsList = snapshot.docs.map(doc => doc.data());
+            const friendsList = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
             setFriends(friendsList);
           });
 
@@ -75,6 +85,7 @@ const FriendsScreen = ({navigation}) => {
     fetchFriends();
   }, []);
 
+  
   const updateLocation = async (lat, long) => {
     const db = FIREBASE_FIRESTORE;
     const currentUserEmail = FIREBASE_AUTH.currentUser.email;
@@ -84,21 +95,85 @@ const FriendsScreen = ({navigation}) => {
     );
     if (!currentUserDoc.empty) {
       const currentUserId = currentUserDoc.docs[0].id;
-
       await setDoc(
         doc(db, 'users', currentUserId),
         {
           location: new GeoPoint(lat, long),
+          targetFriend: selectedFriend.email,
         },
         {merge: true},
       );
     }
   };
+
+
+  useEffect(() => {
+    const fetchLocation = async () => {
+      const currentUserEmail = FIREBASE_AUTH.currentUser.email;
+      try {
+        const db = FIREBASE_FIRESTORE;
+        //Todo: Fetch the location of the selected friend
+        if (selectedFriend) {
+          const friendDocRef = collection(db, 'users');
+          const unsubscribe = onSnapshot(
+            query(friendDocRef, where('email', '==', selectedFriend.email)),
+            snapshot => {
+              if (!snapshot.empty) {
+                const friendLocation = snapshot.docs[0].data().location;
+                const targetFriend = snapshot.docs[0].data().targetFriend;
+                console.log(targetFriend);
+                if (friendLocation && targetFriend === currentUserEmail) {
+                  const {latitude, longitude} = friendLocation;
+                  setLocation({latitude, longitude});
+                  setLocationPermission(true);
+                } else {
+                  setLocationPermission(false);
+                  console.log('Location not available');
+                }
+              }
+            }
+          );
+          
+          // Clean up the listener on unmount
+          return () => unsubscribe();
+        }
+      } catch (error) {
+        console.error('Error fetching location:', error);
+      }
+    };
+  
+    fetchLocation();
+  }, [selectedFriend]);
+  const navigateToFriendLocation = async () => {
+    const db = FIREBASE_FIRESTORE;
+    // Implement navigation logic here
+
+    const friendDoc = await getDocs(
+      query(
+        collection(db, 'users'),
+        where('email', '==', selectedFriend.email),
+      ),
+    );
+    if(friendDoc.docs[0].data().targetFriend == FIREBASE_AUTH.currentUser.email){
+      const {latitude, longitude} = location;
+      setCurrentNavxTarget(selectedFriend.name, latitude, longitude);
+      navigation.navigate('Compass');
+
+    }else{
+      Alert.alert('Your Friend turned off navigation sharing');
+    }
+  };
+
+  
+  let id: any;
+
+  // Requests location permission and shares the current location with the selected friend
   const handleLocationSharingRequest = async () => {
     const res = await requestLocationPermission();
 
+    setIsSharingLocation(true);
     if (res) {
-      GeoLocation.getCurrentPosition(
+      id = GeoLocation.watchPosition(
         position => {
           const {latitude, longitude} = position.coords;
           updateLocation(latitude, longitude);
@@ -108,8 +183,32 @@ const FriendsScreen = ({navigation}) => {
           console.log(error.code, error.message);
           Alert.alert('Error', 'Failed to share your location.');
         },
-        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+        {enableHighAccuracy: true, distanceFilter: 5},
       );
+    }
+  };
+
+  const handleStopSharingLocation = async () => {
+    // Logic to stop sharing location
+    setIsSharingLocation(false);
+    GeoLocation.clearWatch(id);
+    // Update Firestore to remove the location sharing data
+    try {
+      const db = FIREBASE_FIRESTORE;
+      const currentUserEmail = FIREBASE_AUTH.currentUser.email;
+  
+      const currentUserDoc = await getDocs(
+        query(collection(db, 'users'), where('email', '==', currentUserEmail)),
+      );
+      if (!currentUserDoc.empty) {
+        const currentUserId = currentUserDoc.docs[0].id;
+        await updateDoc(
+          doc(db, 'users', currentUserId),
+          { location: null, targetFriend: null},
+        );
+      }
+    } catch (error) {
+      console.error('Error updating Firestore:', error);
     }
   };
 
@@ -128,20 +227,44 @@ const FriendsScreen = ({navigation}) => {
                 setSelectedFriend(null);
               } else {
                 setSelectedFriend(friend);
-                
+                console.log(friend.id);
               }
-              console.log(selectedFriend);
             }}>
-            <Text style={styles.friendName}>{friend.name}</Text>
-            <Text style={styles.friendEmail}>({friend.email})</Text>
+            <Text style={styles.friendName}>
+              {(friend as {name: string}).name}
+            </Text>
+            <Text style={styles.friendEmail}>
+              ({(friend as {email: string}).email})
+            </Text>
             {selectedFriend === friend && (
-              <TouchableOpacity
-                style={styles.shareLocationButton}
-                onPress={handleLocationSharingRequest}>
-                <Text style={styles.shareLocationButtonText}>
-                  Share Location
-                </Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  style={styles.shareLocationButton}
+                  onPress={handleLocationSharingRequest}>
+                  <Text style={styles.shareLocationButtonText}>
+                    Share Location
+                  </Text>
+                </TouchableOpacity>
+                {locationPermission && (
+                  <TouchableOpacity
+                    style={styles.navigationButton} 
+                    onPress={() => {
+                      navigateToFriendLocation();
+                     
+                    }}>
+                    <Text style={styles.navigationButtonText}>Navigate</Text>
+                  </TouchableOpacity>
+                )}
+                
+                {isSharingLocation && (
+                  <TouchableOpacity
+                    style={styles.navigationButton}
+                    onPress={handleStopSharingLocation}>
+                    <Text style={styles.navigationButtonText}>Stop Sharing</Text>
+                  </TouchableOpacity>
+                )}
+
+              </>
             )}
           </TouchableOpacity>
         ))}
@@ -258,7 +381,7 @@ const styles = StyleSheet.create({
   friendItem: {
     marginBottom: 10,
     padding: 10,
-    backgroundColor: '#f0f0f0', // Example background color for the friend item
+    backgroundColor: '#f0f0f0',
     borderRadius: 5,
   },
   shareLocationButton: {
@@ -266,9 +389,21 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
-    marginTop: 10, // Add some space between the friend's details and the button
+    marginTop: 10,
   },
   shareLocationButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  navigationButton: {
+    backgroundColor: themeColor,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  navigationButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',

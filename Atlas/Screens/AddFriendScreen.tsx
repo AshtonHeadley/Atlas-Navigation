@@ -7,7 +7,7 @@
 */
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc } from '@firebase/firestore';
 import { FIREBASE_APP, FIREBASE_AUTH, FIREBASE_FIRESTORE } from '../FirebaseConfig';
 import { backGroundColor, themeColor } from '../default-styles';
 import Icon from 'react-native-vector-icons/FontAwesome';

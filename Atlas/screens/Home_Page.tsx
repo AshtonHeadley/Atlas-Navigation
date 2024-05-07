@@ -121,10 +121,14 @@ const HomePage = ({ navigation }) => {
             <Text style={styles.text}>Friends</Text>
           </TouchableOpacity>
           <TouchableOpacity
+           onPress={() => {
+            navigation.navigate('Profile');
+          }}
             style={{
               ...styles.Button,
               backgroundColor: themeColor,
             }}>
+              
             <FastImage
               source={require('../assets/profile-user.png')}
               style={{ width: 128, height: 128 }}
