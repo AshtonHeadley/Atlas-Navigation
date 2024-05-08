@@ -109,12 +109,10 @@ const copyPinFunc = (card: any) => {
   )
   const newCard = {
     title: `${card.title}`,
-    description: `${card.coordinates.lat}, ${card.coordinates.long}`,
-    coordinates: {
-      lat: card.coordinates.lat,
-      long: card.coordinates.long,
-      specialNum: card.coordinates.specialNum,
-    },
+    description: `${card.latitude}, ${card.coordinates.long}`,
+    latitude: card.coordinates.lat,
+    longitude: card.coordinates.long,
+    specialNum: card.coordinates.specialNum,
     published: card.published,
     user: card.user,
     imageURI: card.imageURI,
@@ -256,8 +254,8 @@ const Pins = ({navigation}) => {
   const onPressNav = ({title = '', latitude = 0, longitude = 0}) => {
     const lat = latitude
     const long = longitude
-    currentNavxTarget = [latitude, longitude]
-    currentNavTitle = title
+    setCurrentNavxTarget(title, lat, long)
+    console.log(lat, long)
     navigation.navigate('Compass')
   }
 

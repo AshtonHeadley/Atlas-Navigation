@@ -99,7 +99,7 @@ const FriendsScreen = ({navigation}) => {
               ...doc.data(),
             }))
             setFriends(friendsList)
-
+            globalFriendList = []
             friendsList.forEach(val => {
               handleFriendImage(val.email)
               globalFriendList.push(val.email)
@@ -189,6 +189,7 @@ const FriendsScreen = ({navigation}) => {
       friendDoc.docs[0].data().targetFriend == FIREBASE_AUTH.currentUser.email
     ) {
       const {latitude, longitude} = location
+      console.log(latitude, longitude)
       setCurrentNavxTarget(selectedFriend.name, latitude, longitude)
       navigation.navigate('Compass')
     } else {
