@@ -331,6 +331,32 @@ const FriendsScreen = ({navigation}) => {
       console.error('Error removing friend:', error)
     }
   }
+
+  const handleExit = page => {
+    if (isSharingLocation) {
+      Alert.alert(
+        'You are currently sharing your location with someone',
+        'If you leave now this will disable sharing',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {},
+          },
+          {
+            text: 'Confirm',
+            onPress: async () => {
+              handleStopSharingLocation()
+              navigation.navigate(page)
+            },
+          },
+        ],
+        {cancelable: true},
+      )
+    } else {
+      navigation.navigate(page)
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Text style={{...styles.title, marginTop: 30}}>Friends List</Text>
@@ -455,21 +481,15 @@ const FriendsScreen = ({navigation}) => {
       <NavigationBar //navigation bar on bottom of screen
         rightItem={{
           ...profileNavItem,
-          onPress: () => {
-            navigation.navigate('Profile')
-          },
+          onPress: () => handleExit('Profile'),
         }}
         centerItem={{
           ...homeNavItem,
-          onPress: () => {
-            navigation.navigate('HomeScreen')
-          },
+          onPress: () => handleExit('HomeScreen'),
         }}
         leftItem={{
           ...pinNavItem,
-          onPress: () => {
-            navigation.navigate('PinScreen')
-          },
+          onPress: () => handleExit('PinScreen'),
         }}
       />
       <View style={{flex: 0.09}} />
@@ -502,7 +522,7 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '80%',
     // backgroundColor: '#dcdcdc',
-    maxHeight: '80%',
+    maxHeight: '60%',
   },
   listTitle: {
     fontSize: 20,
