@@ -5,47 +5,53 @@ This is a new and innovative navigation app. Please try us out!
 ![image](https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp/assets/93296008/00dd4b3d-8932-4532-90d3-60f9a1625607)
 
 # General Installation Guide
-- Step 1: Clone the Repository 
-  - First, clone the Atlas repository to your local machine. Open a terminal window and run:
+## Step 1: Clone the Repository 
+- First, clone the Atlas repository to your local machine. Open a terminal window and run:
 ```
 Git clone https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp.git
 ```
 
-### Step 2: Install Development Tools 
+## Step 2: Install Development Tools 
+### Depending on whether you are developing for iOS or Android, you will need to install the appropriate tools:
 
-Depending on whether you are developing for iOS or Android, you will need to install the appropriate tools:
+- For iOS (Mac only): Download and install Xcode.
+- If not already installed, make sure to have the latest version of CocoaPods installed
+    - Install accurate to architecture (ARM-64, x86 Intel)
+        - CocoaPods guides here: CocoaPods Guide
+            - Troubleshooting: 
+                - If installation is failing, try: HomeBrew Installation
+                - Native installation may be required if on ARM system
+                - Use StackOverflow threads for support
+                - Potentially helpful thread: HERE
+- For Android: Download and install Android Studio.
 
-For iOS (Mac only): Download and install Xcode.
-If not already installed, make sure to have the latest version of CocoaPods installed
-Install accurate to architecture (ARM-64, x86 Intel)
-CocoaPods guides here: CocoaPods Guide
-Troubleshooting: 
-If installation is failing, try: HomeBrew Installation
-Native installation may be required if on ARM system
-Use StackOverflow threads for support
-Potentially helpful thread: HERE
-For Android: Download and install Android Studio.
+## Step 3: Open the Project in an IDE 
 
-Step 3: Open the Project in an IDE 
+### You can open the Atlas project in any Integrated Development Environment (IDE) of your choice, such as Visual Studio Code, Xcode, or Android Studio. 
 
-You can open the Atlas project in any Integrated Development Environment (IDE) of your choice, such as Visual Studio Code, Xcode, or Android Studio. 
-
-Step 4: Install Project Dependencies 
-
-Open a terminal window. 
-Navigate to the cloned directory and then enter the subdirectory “Atlas”:
+## Step 4: Install Project Dependencies 
+- Open a terminal window. 
+- Navigate to the cloned directory and then enter the subdirectory “Atlas”:
+```
 cd [directory path here]/Team5-Atlas-NavigationApp/Atlas
-Install the necessary packages by running:
+```
+- Install the necessary packages by running:
+```
 npm install
 npm update
 npm link
-iOS ONLY: update pod packages:
+```
+### - iOS ONLY: update pod packages:
+```
 cd ios
 pod install
-Troubleshoot: HERE
-Return to the “Atlas” directory
+```
+  - Troubleshoot: HERE
+  - Return to the “Atlas” directory
+```
 cd ..
-Option 1: Emulator run
+```
+# Option 1: Emulator run
 Step 1: Install Necessary Emulators
 In Xcode or Android Studio, install necessary simulator device to run Atlas on
 Xcode Simulator(Emulator) Guide
