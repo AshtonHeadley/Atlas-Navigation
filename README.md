@@ -65,32 +65,27 @@ npm run start
 - Step 3: Launch the Application on a Virtual Device 
     1. Open another terminal window. 
     2. Navigate to the project directory then Atlas directory again:
-`*
+`
 cd [directory path here]/Team5-Atlas-NavigationApp/Atlas
-*`
+`
     3. Run one of the following commands depending on the target platform:
         - For ios: npm run ios
         - For android: npm run android
 ### This will open the project in a virtual device, either an iPhone or an Android emulator.
 
-Option 2: Hardware run (iOS/iPhone ONLY) [Apple ID with developer access enabled required]
-Follow general steps 1-4
-Run Xcode, open Atlas.xcodeproj
-On mobile device, enable developer mode in the settings
-Using a “charging cable” connect iOS device to computer, enable this device as a “simulator” on Xcode
-On top bar in Xcode, select connected device in the dropdown menu
+# Option 2: Hardware run (iOS/iPhone ONLY) [Apple ID with developer access enabled required]
+1. Follow general steps 1-4
+2. Run Xcode, open Atlas.xcodeproj
+3. On mobile device, enable developer mode in the settings
+4. Using a “charging cable” connect iOS device to computer, enable this device as a “simulator” on Xcode
+5. On top bar in Xcode, select connected device in the dropdown menu
+6. Click the “Play” button with title “Start activated scheme” and wait for “Build Succeeded” or other instructions on screen.
+    - Possible issues:
+        - Apple ID with developer access not signed in on Xcode
+        - Unverified Developer warning on mobile device (after build):
+            - Settings→General→VPN and Device Management→ Trust application developer
+7. Find app on device and tap to run
 
-Your device name will appear here
-Click the “Play” button with title “Start activated scheme” and wait for “Build Succeeded” or other instructions on screen.
-
-Possible issues:
-Apple ID with developer access not signed in on Xcode
-Unverified Developer warning on mobile device (after build):
-Settings→General→VPN and Device Management→ Trust application developer
-Find app on device and tap to run
-
-
-Step 7: Atlas
 
 Following these steps above will allow for any user to download and use the Atlas Navigation app. 
 
