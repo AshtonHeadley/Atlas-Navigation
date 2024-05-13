@@ -83,7 +83,7 @@ cd [directory path here]/Team5-Atlas-NavigationApp/Atlas
     - Possible issues:
         - Apple ID with developer access not signed in on Xcode
         - Unverified Developer warning on mobile device (after build):
-            - `Settings→General→VPN and Device Management→ Trust application developer`
+            - `Settings (App)→General→VPN & Device Management→ Trust application developer`
 7. Find app on device and tap to run
 
 
