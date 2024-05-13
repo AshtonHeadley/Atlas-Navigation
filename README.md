@@ -41,7 +41,7 @@ npm install
 npm update
 npm link
 ```
-### - iOS ONLY: update pod packages:
+- ### iOS ONLY: update pod packages:
 ```
 cd ios
 pod install
