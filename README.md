@@ -14,8 +14,9 @@ Git clone https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp.git
 ## Step 2: Install Development Tools 
 ### Depending on whether you are developing for iOS or Android, you will need to install the appropriate tools:
 
-- For iOS (Mac only): Download and install Xcode.
-- If not already installed, make sure to have the latest version of CocoaPods installed
+### iOS
+1. For iOS (Mac only): Download and install Xcode.
+2. If not already installed, make sure to have the latest version of CocoaPods installed
     - Install accurate to architecture (ARM-64, x86 Intel)
         - CocoaPods guides here: CocoaPods Guide
             - Troubleshooting: 
@@ -23,52 +24,54 @@ Git clone https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp.git
                 - Native installation may be required if on ARM system
                 - Use StackOverflow threads for support
                 - Potentially helpful thread: HERE
-- For Android: Download and install Android Studio.
+### Android
+1. For Android: Download and install Android Studio.
 
 ## Step 3: Open the Project in an IDE 
-
 ### You can open the Atlas project in any Integrated Development Environment (IDE) of your choice, such as Visual Studio Code, Xcode, or Android Studio. 
 
 ## Step 4: Install Project Dependencies 
-- Open a terminal window. 
-- Navigate to the cloned directory and then enter the subdirectory “Atlas”:
+1. Open a terminal window. 
+2. Navigate to the cloned directory and then enter the subdirectory “Atlas”:
 ```
 cd [directory path here]/Team5-Atlas-NavigationApp/Atlas
 ```
-- Install the necessary packages by running:
+3. Install the necessary packages by running:
 ```
 npm install
 npm update
 npm link
 ```
-- ### iOS ONLY: update pod packages:
+4. ### iOS ONLY: update pod packages:
 ```
 cd ios
 pod install
 ```
-\t- Troubleshoot: HERE
-- Return to the “Atlas” directory
+Troubleshooting support: HERE
+5. Return to the “Atlas” directory
 ```
 cd ..
 ```
 # Option 1: Emulator run
-Step 1: Install Necessary Emulators
-In Xcode or Android Studio, install necessary simulator device to run Atlas on
-Xcode Simulator(Emulator) Guide
-Android Studio Emulator Guide
-Step 2: Start the Development Server
-Back on the Atlas directory, run the following command in the terminal to start the development server:
+- Step 1: Install Necessary Emulators
+    1. In Xcode or Android Studio, install necessary simulator device to run Atlas on
+        - Xcode Simulator(Emulator) Guide
+        - Android Studio Emulator Guide
+- Step 2: Start the Development Server
+    1. Back on the Atlas directory, run the following command in the terminal to start the development server:
+```
 npm run start
-Step 3: Launch the Application on a Virtual Device 
-Open another terminal window. 
-Navigate to the project directory then Atlas directory again:
+```
+- Step 3: Launch the Application on a Virtual Device 
+    1. Open another terminal window. 
+    2. Navigate to the project directory then Atlas directory again:
+`*
 cd [directory path here]/Team5-Atlas-NavigationApp/Atlas
-Run one of the following commands depending on the target platform:
-For ios: npm run ios
-For android: npm run android
-
-
-This will open the project in a virtual device, either an iPhone or an Android emulator.
+*`
+    3. Run one of the following commands depending on the target platform:
+        - For ios: npm run ios
+        - For android: npm run android
+### This will open the project in a virtual device, either an iPhone or an Android emulator.
 
 Option 2: Hardware run (iOS/iPhone ONLY) [Apple ID with developer access enabled required]
 Follow general steps 1-4
