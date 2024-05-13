@@ -46,8 +46,8 @@ npm link
 cd ios
 pod install
 ```
-      - Troubleshoot: HERE
-  - Return to the “Atlas” directory
+\t- Troubleshoot: HERE
+- Return to the “Atlas” directory
 ```
 cd ..
 ```
