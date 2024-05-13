@@ -6,7 +6,7 @@ This is a new and innovative navigation app. Please try us out!
 
 # General Installation Guide
 - Step 1: Clone the Repository 
--- First, clone the Atlas repository to your local machine. Open a terminal window and run:
+  - First, clone the Atlas repository to your local machine. Open a terminal window and run:
 ```
 Git clone https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp.git
 ```
