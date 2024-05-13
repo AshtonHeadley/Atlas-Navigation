@@ -4,12 +4,14 @@ This is a new and innovative navigation app. Please try us out!
 
 ![image](https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp/assets/93296008/00dd4b3d-8932-4532-90d3-60f9a1625607)
 
-# Atlas Navigation App, General Installation Guide
-Step 1: Clone the Repository 
-First, clone the Atlas repository to your local machine. Open a terminal window and run:
+# General Installation Guide
+- Step 1: Clone the Repository 
+-- First, clone the Atlas repository to your local machine. Open a terminal window and run:
+```
 Git clone https://github.com/CS160-04-Spring2024/Team5-Atlas-NavigationApp.git
+```
 
-Step 2: Install Development Tools 
+### Step 2: Install Development Tools 
 
 Depending on whether you are developing for iOS or Android, you will need to install the appropriate tools:
 
